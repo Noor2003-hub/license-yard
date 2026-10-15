@@ -74,8 +74,29 @@ p{margin:0}
 #mRear.check{transform:scale(1.2) translateY(8px)}
 #mLeft.check{transform-origin:left bottom}#mRight.check{transform-origin:right bottom}
 .mirror.nag{animation:nag 1s infinite}
+.mirror.look{box-shadow:0 0 0 2px #f2c23073,0 6px 18px #0008}
+.gazeDot{position:absolute;top:34%;left:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;border:2px solid #f2c230;opacity:0;transition:opacity .25s;pointer-events:none}
+.gazeDot.on{opacity:.28}
 .mirror.target{animation:tgt .8s infinite;z-index:4}
 @keyframes tgt{50%{box-shadow:0 0 0 7px var(--kerb),0 6px 18px #0008}}
+.lab{position:fixed;inset:0;z-index:30;background:var(--asphalt);overflow:hidden}
+.lab .road{position:absolute;left:50%;bottom:0;width:60vw;height:62vh;transform:translateX(-50%);background:linear-gradient(#2a2d33,#3b3e44);clip-path:polygon(46% 0,54% 0,100% 100%,0 100%);opacity:.6}
+.labT{position:absolute;border:3px dashed #4a4f58;border-radius:16px;display:grid;place-items:center;color:var(--muted);font-size:.9rem;text-align:center;transition:background .15s,border-color .15s}
+.labT.active{border:4px solid var(--kerb);color:var(--paint);animation:tgt .8s infinite}
+.labT.seen{background:#f2c23026}
+.labT.ok{border:4px solid var(--go);background:#3cc07e33;color:var(--paint);animation:none}
+.labT.bad{border:4px solid var(--stop);background:#d8382c26;animation:none}
+#tRear{top:calc(10px + env(safe-area-inset-top,0px));left:50%;width:min(30vw,340px);height:min(8.6vw,96px);transform:translateX(-50%)}
+#tLeft{left:calc(14px + env(safe-area-inset-left,0px));bottom:calc(120px + env(safe-area-inset-bottom,0px));width:min(19vw,230px);height:min(12vw,140px)}
+#tRight{right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(120px + env(safe-area-inset-bottom,0px));width:min(19vw,230px);height:min(12vw,140px)}
+#tCenter{top:34%;left:50%;width:150px;height:90px;transform:translate(-50%,-50%);border-radius:50%}
+.labPanel{position:absolute;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(46vw,540px);background:#111317f2;border-radius:14px;padding:14px 18px;display:flex;flex-direction:column;gap:8px;border-top:5px solid var(--kerb)}
+.labPanel b.t{font-family:var(--display);font-size:1.45rem}
+.labTop{display:flex;gap:12px;align-items:center}
+#labCam{width:120px;height:90px;border-radius:10px;overflow:hidden;background:#000;flex:none}
+#labCam video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.bar{height:6px;background:var(--asphalt-3);border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--kerb)}
+@media (max-width:760px){.labPanel{width:calc(100vw - 32px)}#tLeft,#tRight{bottom:auto;top:40%}}
 .calib{position:absolute;top:44%;left:50%;transform:translate(-50%,-50%);background:#111317f2;border-radius:14px;padding:16px 22px;text-align:center;display:flex;flex-direction:column;gap:6px;max-width:80vw}
 .calib b{font-family:var(--display);font-size:1.6rem}
 .sensBox{display:flex;flex-direction:column;gap:2px;min-width:220px}
@@ -157,8 +178,8 @@ p{margin:0}
     <div class="pairBox" style="align-items:center;gap:14px"><div id="qr" style="background:#fff;padding:6px;border-radius:8px;line-height:0"></div><div style="display:flex;flex-direction:column;gap:4px;min-width:0"><b>وصلي التليفون</b><span class="note">امسحي الكود بكاميرا التليفون، أو افتحي <span id="wheelUrl" style="direction:ltr;unicode-bidi:embed"></span> واكتبي</span><span class="code" id="menuCode">----</span><span class="row" style="gap:6px"><span class="dot" id="menuDot"></span><span id="menuLink" class="note">مستني التليفون</span></span></div></div>
   </div>
   <div class="pairBox" style="flex-wrap:wrap;justify-content:space-between;gap:14px">
-    <div style="display:flex;flex-direction:column;gap:4px;min-width:0;flex:1 1 300px"><b>تتبع العين للمرايات</b><span class="note">الكاميرا بتشوف إمتى بتبصي في المرايات. لو قفلتيها أو مشتغلتش، المرايات بتتحسبلك أوتوماتيك ومش هيتخصم منك حاجة.</span><span class="row" style="gap:6px"><span class="dot" id="eyeDot2"></span><span class="note" id="eyeStatus">مقفول</span></span></div>
-    <div class="row"><button class="btn" id="eyeBtn">شغلي الكاميرا</button><button class="btn ghost" id="eyeCalBtn" hidden>اظبطيها من الأول</button></div>
+    <div style="display:flex;flex-direction:column;gap:4px;min-width:0;flex:1 1 300px"><b>تتبع العين للمرايات</b><span class="note">الكاميرا بتشوف إمتى بتبصي في المرايات. أول مرة هتعملي ظبط واختبار للعين، وبعد كده بيفتكره. لو قفلتيها أو مشتغلتش، المرايات بتتحسبلك أوتوماتيك ومش هيتخصم منك حاجة.</span><span class="row" style="gap:6px"><span class="dot" id="eyeDot2"></span><span class="note" id="eyeStatus">مقفول</span></span></div>
+    <div class="row"><button class="btn" id="eyeBtn">شغلي الكاميرا</button><button class="btn ghost" id="eyeCalBtn" hidden>ظبط واختبار العين</button></div>
     <div class="sensBox"><label for="sensMenu">حساسية الدركسيون <b id="sensMenuV">100%</b></label><input type="range" id="sensMenu" min="0.5" max="1.6" step="0.05"><span class="note">بتأثر على التليفون ويد التحكم والأسهم.</span></div>
   </div>
   <div class="levels" id="levels"></div>
@@ -180,8 +201,8 @@ p{margin:0}
     <div class="chip"><span class="dot" id="eyeDot"></span><span id="eyeChip">المرايات أوتوماتيك</span></div>
     <button class="chip" id="keysChip">المفاتيح <kbd>K</kbd></button>
   </div>
+  <div class="gazeDot" id="gazeDot"></div>
   <div class="toasts" id="toasts"></div>
-  <div class="calib" id="calib" hidden><span class="note">بنظبط تتبع العين</span><b id="calibT">بصي على الطريق قدامك</b><span class="note" id="calibS">ثبتي عينك ومتحركيش راسك كتير</span></div>
   <div class="hint" id="hint"></div>
   <div class="keysPanel" id="keysPanel" hidden></div>
   <div class="dash">
@@ -201,6 +222,19 @@ p{margin:0}
   <div class="sensBox"><label for="sensPause">حساسية الدركسيون <b id="sensPauseV">100%</b></label><input type="range" id="sensPause" min="0.5" max="1.6" step="0.05"></div>
   <div class="row"><button class="btn" id="resumeBtn">كملي</button><button class="btn ghost" id="restartBtn">ابدئي المستوى من الأول</button><button class="btn ghost" id="menuBtn">كل المستويات</button><button class="btn ghost" id="eyeCalPause" hidden>اظبطي تتبع العين</button></div>
 </div></div>
+<div class="lab" id="lab" hidden>
+  <div class="road"></div>
+  <div class="labT" id="tRear"><span>المراية اللي فوق</span></div>
+  <div class="labT" id="tLeft"><span>المراية الشمال</span></div>
+  <div class="labT" id="tRight"><span>المراية اليمين</span></div>
+  <div class="labT" id="tCenter"><span>الطريق</span></div>
+  <div class="labPanel">
+    <div class="labTop"><div id="labCam"></div><div style="display:flex;flex-direction:column;gap:4px;min-width:0"><b class="t" id="labTitle">ظبط العين</b><span class="row" style="gap:6px"><span class="dot" id="labFace"></span><span class="note" id="labFaceT">بدور على وشك…</span></span></div></div>
+    <p id="labText"></p>
+    <div class="bar"><i id="labBar"></i></div>
+    <div class="row" id="labBtns"></div>
+  </div>
+</div>
 <div class="overlay" id="ovResult" hidden><div class="sheet" id="resultSheet"></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -950,7 +984,9 @@ function visuals(dt){
   }
   // mirrors
   const lastM=G.mirrorT;
-  mirrors.forEach((m,i)=>{const k=[1,2,3][i];m.el.classList.toggle('check',!G.mirrorAuto&&ET.look===k);m.el.classList.toggle('nag',!!G.nag);});
+  const showGaze=!G.mirrorAuto&&!G.calib;
+  mirrors.forEach((m,i)=>{const k=[1,2,3][i];m.el.classList.toggle('look',showGaze&&ET.gaze===k);m.el.classList.toggle('nag',!!G.nag);});
+  $('#gazeDot').classList.toggle('on',showGaze&&ET.gaze==='c');
 }
 let hudAcc=0;
 function updHUD(force){
@@ -998,7 +1034,7 @@ document.addEventListener('keydown',e=>{
   S.init();
   const k=e.code;
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(k))e.preventDefault();
-  if(k==='Escape'){if(!$('#ovResult').hidden)return;togglePause();return;}
+  if(k==='Escape'){if(!$('#ovResult').hidden||LAB.on)return;togglePause();return;}
   if(G.paused||G.done){G.keys[k]=false;return;}
   G.keys[k]=true;
   if(e.repeat)return;
@@ -1068,13 +1104,12 @@ function startLevel(i){
   S.init();
   $('#ovBrief').hidden=true;$('#ovResult').hidden=true;$('#ovPause').hidden=true;$('#scrMenu').hidden=true;$('#game').hidden=false;
   resize();loadLevel(i);G.running=true;G.paused=false;G.keys={};
-  if(ET.state==='on'&&!ET.calib)setTimeout(etCalibrate,300);
 }
 function togglePause(){G.paused=!G.paused;$('#ovPause').hidden=!G.paused;$('#eyeCalPause').hidden=ET.state!=='on';if(G.paused){G.keys={};S.engine(0,false,false);}}
 $('#resumeBtn').onclick=()=>togglePause();
 $('#restartBtn').onclick=()=>{startLevel(G.lvl);};
 $('#menuBtn').onclick=showMenu;
-$('#eyeCalPause').onclick=()=>{togglePause();etCalibrate();};
+$('#eyeCalPause').onclick=()=>{labOpen();};
 function showResult(pass){
   const agg={};G.log.forEach(e=>{const k=e.text;if(!agg[k])agg[k]={d:0,n:0,text:k};agg[k].d+=e.d;agg[k].n++;});
   const items=Object.values(agg).sort((a,b)=>a.d-b.d);
@@ -1111,7 +1146,7 @@ const ET={state:'off',video:null,lm:null,calib:store.get('eyeCalib',null),feat:n
 const VISION='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
 function etStatus(t,on){$('#eyeStatus').textContent=t;$('#eyeDot2').classList.toggle('on',!!on);}
 function etButtons(){const on=ET.state==='on';$('#eyeBtn').hidden=on;$('#eyeCalBtn').hidden=!on;}
-async function etStart(){
+async function etStart(opts_auto){
   if(ET.state==='loading'||ET.state==='on')return;
   ET.state='loading';etStatus('بيشغل الكاميرا…');
   try{
@@ -1124,8 +1159,9 @@ async function etStart(){
     const opts=d=>({baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',delegate:d},runningMode:'VIDEO',numFaces:1,outputFaceBlendshapes:true,outputFacialTransformationMatrixes:true});
     try{ET.lm=await vis.FaceLandmarker.createFromOptions(fs,opts('GPU'));}catch(e){ET.lm=await vis.FaceLandmarker.createFromOptions(fs,opts('CPU'));}
     ET.state='on';store.set('eyeOn',true);
-    etStatus(ET.calib?'شغال':'شغال. هنظبطه أول ما تبدئي مستوى',true);etButtons();
+    etStatus(ET.calib?'شغال ومتظبط':'الكاميرا شغالة. محتاجة تظبطي العين الأول',!!ET.calib);etButtons();
     requestAnimationFrame(etLoop);
+    if(!ET.calib&&!opts_auto)labOpen();
   }catch(e){
     ET.state='off';store.set('eyeOn',false);
     try{ET.video&&ET.video.srcObject&&ET.video.srcObject.getTracks().forEach(t=>t.stop());}catch(_){}
@@ -1138,7 +1174,7 @@ function etLoop(t){
   if(t-etLast<45)return;etLast=t;
   const v=ET.video;if(!v||v.readyState<2)return;
   let r;try{r=ET.lm.detectForVideo(v,performance.now());}catch(e){return;}
-  if(!r||!r.faceBlendshapes||!r.faceBlendshapes.length){ET.feat=null;ET.look=0;return;}
+  if(!r||!r.faceBlendshapes||!r.faceBlendshapes.length){ET.feat=null;ET.look=0;ET.gaze=null;return;}
   const bs={};r.faceBlendshapes[0].categories.forEach(c=>bs[c.categoryName]=c.score);
   let yaw=0,pitch=0;const m=r.facialTransformationMatrixes&&r.facialTransformationMatrixes[0];
   if(m&&m.data){const d=m.data;yaw=Math.atan2(d[8],d[10]);pitch=Math.asin(clamp(-d[9],-1,1));}
@@ -1147,40 +1183,102 @@ function etLoop(t){
   const f=[yaw*2.5,pitch*2.5,gh,gv];
   ET.feat=ET.feat?ET.feat.map((x,i)=>x*.5+f[i]*.5):f;ET.lastFace=performance.now();
   if(ET.collect){ET.collect.push(ET.feat.slice());return;}
-  if(ET.calib&&G.running&&!G.paused&&!G.done&&!G.calib)etClassify();
+  if(LAB.on)labTick();
+  else if(ET.calib&&G.running&&!G.paused&&!G.done&&!G.calib)etClassify();
 }
 const fdist=(a,b)=>Math.hypot(...a.map((x,i)=>x-b[i]));
-function etClassify(){
-  const c=ET.calib,f=ET.feat;if(!f)return;
-  let best=0,bd=fdist(f,c.c);
+function classify(c,f){
+  if(!c||!f)return null;
+  let best='c',bd=fdist(f,c.c);
   [1,2,3].forEach(k=>{const d=fdist(f,c[k]);if(d<bd){bd=d;best=k;}});
-  if(best&&bd<0.6*fdist(c[best],c.c)){
-    if(ET.cand===best)ET.candN++;else{ET.cand=best;ET.candN=1;}
-    if(ET.candN>=3){ET.look=best;if(ET.candN===3)mirrorCheck(best,true);else G.mirrorT[best]=G.time;}
+  if(best==='c')return 'c';
+  return bd<0.6*fdist(c[best],c.c)?best:null;
+}
+function etClassify(){
+  const k=classify(ET.calib,ET.feat);ET.gaze=k;
+  if(k&&k!=='c'){
+    if(ET.cand===k)ET.candN++;else{ET.cand=k;ET.candN=1;}
+    if(ET.candN>=3){ET.look=k;if(ET.candN===3)mirrorCheck(k,true);else G.mirrorT[k]=G.time;}
   } else {ET.cand=0;ET.candN=0;ET.look=0;}
 }
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-async function etCalibrate(){
-  if(ET.state!=='on'||G.calib)return;
-  G.calib=true;G.keys={};
-  const steps=[['c','بصي على الطريق قدامك',0],[1,'بصي على المراية الشمال',1],[2,'بصي على المراية اللي فوق',2],[3,'بصي على المراية اليمين',3]];
-  const res={};let ok=true;
-  $('#calib').hidden=false;
-  for(const [key,txt,mk] of steps){
-    $('#calibT').textContent=txt;$('#calibS').textContent='ثبتي عينك عليها لحد ما تختفي العلامة';
-    mirrors.forEach((m,i)=>m.el.classList.toggle('target',mk===i+1));
-    await sleep(1200);ET.collect=[];await sleep(1400);
-    const arr=ET.collect;ET.collect=null;
-    if(arr.length<6){ok=false;break;}
-    res[key]=[0,1,2,3].map(i=>{const v=arr.map(a=>a[i]).sort((x,y)=>x-y);return v[Math.floor(v.length/2)];});
-  }
-  mirrors.forEach(m=>m.el.classList.remove('target'));
-  $('#calib').hidden=true;G.calib=false;
-  if(ok&&[1,2,3].every(k=>fdist(res[k],res.c)>0.12)){ET.calib=res;store.set('eyeCalib',res);etStatus('شغال ومتظبط',true);toast('اتظبط تتبع العين','good');}
-  else{ET.calib=null;store.set('eyeCalib',null);etStatus('معرفتش أظبطه. المرايات بتتحسبلك أوتوماتيك');toast('معرفتش أشوف عينك كويس، المرايات هتتحسبلك أوتوماتيك. تقدري تظبطيها تاني من الوقفة (Esc)','info');}
+/* ---------- eye lab: one-time calibration + test ---------- */
+const LAB={on:false,cal:null,live:null,run:0};
+const TGT={c:'#tCenter',1:'#tLeft',2:'#tRear',3:'#tRight'};
+const TNAME={c:'الطريق في النص',1:'المراية الشمال',2:'المراية اللي فوق',3:'المراية اليمين'};
+function labBtns(list){const b=$('#labBtns');b.innerHTML='';list.forEach(([t,fn,ghost])=>{const x=document.createElement('button');x.className='btn'+(ghost?' ghost':'');x.textContent=t;x.onclick=fn;b.appendChild(x);});}
+function labMark(k,cls){Object.values(TGT).forEach(sel=>$(sel).classList.remove(cls));if(k!=null)$(TGT[k]).classList.add(cls);}
+function labReset(){Object.values(TGT).forEach(sel=>$(sel).classList.remove('active','seen','ok','bad'));$('#labBar').style.width='0';}
+function labTick(){
+  const face=ET.feat&&performance.now()-ET.lastFace<500;
+  $('#labFace').classList.toggle('on',!!face);$('#labFaceT').textContent=face?'شايفة وشك':'مش شايفة وشك. اقعدي قدام الكاميرا';
+  const k=LAB.cal?classify(LAB.cal,ET.feat):null;LAB.live=k;labMark(k,'seen');
 }
+function labOpen(){
+  if(ET.state!=='on'){etStart();return;}
+  LAB.on=true;LAB.cal=null;LAB.run++;G.calib=true;G.keys={};
+  $('#ovPause').hidden=true;
+  $('#labCam').innerHTML='';$('#labCam').appendChild(ET.video);ET.video.play().catch(()=>{});
+  $('#lab').hidden=false;labReset();
+  $('#labTitle').textContent='ظبط العين';
+  $('#labText').textContent='اقعدي زي ما هتقعدي وانتي بتلعبي، والشاشة قدامك على طول. هطلب منك تبصي على الطريق والمرايات التلاتة واحدة واحدة عشان أتعلم شكل عينك، وبعدين هختبرك.';
+  labBtns([['ابدئي',labCalibrate],['بعدين',labCancel,true]]);
+}
+function labClose(){
+  LAB.on=false;LAB.run++;$('#lab').hidden=true;labReset();G.calib=false;
+  if(G.running&&G.paused){$('#ovPause').hidden=false;$('#eyeCalPause').hidden=ET.state!=='on';}
+}
+function labCancel(){labClose();etStatus(ET.calib?'شغال ومتظبط':'مش متظبط. المرايات بتتحسبلك أوتوماتيك',!!ET.calib);}
+async function labCalibrate(){
+  const run=++LAB.run;LAB.cal=null;labReset();labBtns([['وقفي',labCancel,true]]);
+  const res={};
+  for(const k of ['c',1,2,3]){
+    if(run!==LAB.run)return;
+    labMark(k,'active');$('#labTitle').textContent='بصي على '+TNAME[k];
+    $('#labText').textContent='ثبتي عينك عليها لحد ما الشريط يخلص. حركي عينك وراسك عادي زي ما بتعملي وانتي سايقة.';
+    $('#labBar').style.width='0';await sleep(1200);if(run!==LAB.run)return;
+    ET.collect=[];const t0=performance.now();
+    while(performance.now()-t0<1800){await sleep(50);$('#labBar').style.width=Math.min(100,(performance.now()-t0)/18)+'%';if(run!==LAB.run){ET.collect=null;return;}}
+    const arr=ET.collect;ET.collect=null;
+    if(arr.length<8){labFail('مش شايفة وشك كويس. قربي من الكاميرا، ونوري الأوضة، وخلي وشك في نص الكاميرا.');return;}
+    res[k]=[0,1,2,3].map(i=>{const v=arr.map(a=>a[i]).sort((x,y)=>x-y);return v[Math.floor(v.length/2)];});
+  }
+  labMark(null,'active');
+  if(![1,2,3].every(k=>fdist(res[k],res.c)>0.12)){labFail('عينك مكانتش بتتحرك كفاية بين الأماكن. المرة دي حركي عينك وراسك شوية ناحية كل مراية.');return;}
+  LAB.cal=res;labTest(run);
+}
+function labFail(msg){labMark(null,'active');$('#labBar').style.width='0';$('#labTitle').textContent='محتاجين نعيد';$('#labText').textContent=msg;labBtns([['أعيد',labCalibrate],['سيبي المرايات أوتوماتيك',labAuto,true]]);}
+async function labTest(run){
+  const order=[1,'c',3,2];let pass=0;
+  $('#labTitle').textContent='اختبار';$('#labText').textContent='دلوقتي هنتأكد إني فاهمة عينك. بصي على المكان اللي بينور، وهيخضر لما أشوفك بتبصي عليه.';
+  labBtns([['وقفي',labCancel,true]]);await sleep(1800);
+  for(const k of order){
+    if(run!==LAB.run)return;
+    labMark(k,'active');$('#labTitle').textContent='بصي على '+TNAME[k];
+    const t0=performance.now();let n=0,ok=false;
+    while(performance.now()-t0<6000){
+      await sleep(60);if(run!==LAB.run)return;
+      $('#labBar').style.width=Math.min(100,(performance.now()-t0)/60)+'%';
+      if(LAB.live===k){if(++n>=4){ok=true;break;}}else n=0;
+    }
+    $(TGT[k]).classList.remove('active');$(TGT[k]).classList.add(ok?'ok':'bad');if(ok)pass++;
+    await sleep(500);
+  }
+  $('#labBar').style.width='0';
+  if(pass>=3){
+    $('#labTitle').textContent=`نجح ${pass} من 4`;
+    $('#labText').textContent=pass===4?'التتبع شغال كويس. احفظيه وابدئي العبي.':'التتبع شغال كويس كفاية. تقدري تحفظيه، أو تعيدي عشان يبقى أدق.';
+    labBtns([['احفظي',labSave],['أعيد',labCalibrate,true]]);
+  } else {
+    $('#labTitle').textContent=`نجح ${pass} من 4 بس`;
+    $('#labText').textContent='التتبع مش دقيق كفاية لسه. جربي تعيدي وانتي قاعدة في نفس المكان، أو سيبي المرايات تتحسبلك أوتوماتيك.';
+    labBtns([['أعيد',labCalibrate],['سيبي المرايات أوتوماتيك',labAuto,true]]);
+  }
+}
+function labSave(){ET.calib=LAB.cal;store.set('eyeCalib',ET.calib);labClose();etStatus('شغال ومتظبط',true);toast('اتحفظ ظبط العين','good');}
+function labAuto(){ET.calib=null;store.set('eyeCalib',null);labClose();etStatus('مش متظبط. المرايات بتتحسبلك أوتوماتيك');}
 $('#eyeBtn').onclick=etStart;
-$('#eyeCalBtn').onclick=()=>{ET.calib=null;store.set('eyeCalib',null);etStatus('هنظبطه أول ما تبدئي مستوى',true);};
+$('#eyeCalBtn').onclick=labOpen;
 function setSens(v){G.sens=clamp(+v||1,.5,1.6);store.set('sens',G.sens);const t=Math.round(G.sens*100)+'%';['sensMenu','sensPause'].forEach(id=>{$('#'+id).value=G.sens;$('#'+id+'V').textContent=t;});}
 ['sensMenu','sensPause'].forEach(id=>$('#'+id).addEventListener('input',e=>setSens(e.target.value)));
 setSens(G.sens);
@@ -1188,7 +1286,7 @@ function boot(){
   if(!THREEOK){$('#scrMenu').hidden=false;$('#levels').innerHTML='<p class="err">مكتبة الرسم ماتحملتش. جربي تحدثي الصفحة.</p>';return;}
   if(matchMedia('(pointer:coarse)').matches&&innerWidth<820)$('#onPhone').hidden=false;
   initThree();showMenu();startPeer();
-  if(store.get('eyeOn',false)&&navigator.permissions&&navigator.permissions.query){navigator.permissions.query({name:'camera'}).then(p=>{if(p.state==='granted')etStart();},()=>{});}
+  if(store.get('eyeOn',false)&&navigator.permissions&&navigator.permissions.query){navigator.permissions.query({name:'camera'}).then(p=>{if(p.state==='granted')etStart(true);},()=>{});}
 }
 boot();
 requestAnimationFrame(loop);
