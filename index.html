@@ -7,7 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Alexandria:wght@600;800&display=swap">
 <style>
-@font-face{font-family:'MT Halal';src:url('fonts/MTHALALVF-Normal.otf') format('opentype');font-weight:100 900;font-display:swap}
+@font-face{font-family:'MT Halal';src:url('fonts/MTHALALVF-Normal.otf') format('opentype');font-weight:100 900;font-stretch:50% 200%;font-display:swap}
+:root{--squeeze:'wdth' 70}
+h1,h2,h3,.lvl .n,.card .t,.verdict,.labPanel b.t,#lvlMenu b,.choice b,.steps b,.sheet h2,h1{font-stretch:70%;font-variation-settings:var(--squeeze)}
 [hidden]{display:none!important}
 /* Layout: night asphalt yard; black-and-yellow Kuwaiti kerb stripe as the signature; game fills the screen, menus sit on the asphalt. */
 :root{
@@ -554,7 +556,7 @@ function initThree(){
   hud=new THREE.Scene();hudCam=new THREE.OrthographicCamera(0,1,1,0,-1,1);
   [['mLeft',1.05,-0.2,32],['mRear',0,0,24],['mRight',-1.05,0.2,32]].forEach(([id,x,yaw,fov])=>{
     const el=$('#'+id);const cam=new THREE.PerspectiveCamera(fov,1.6,0.1,500);
-    if(id==='mRear'){cam.position.set(0,1.38,1.15);cam.rotation.set(-0.03,0,0);}else{cam.position.set(x,1.12,2.05);cam.rotation.set(-0.05,yaw,0);}
+    if(id==='mRear'){cam.position.set(0,1.32,-0.98);cam.rotation.set(-0.04,0,0);cam.near=0.3;}else{cam.position.set(x,1.12,2.05);cam.rotation.set(-0.05,yaw,0);}
     player.g.add(cam);
     const rt=new THREE.WebGLRenderTarget(256,128);rt.texture.encoding=THREE.sRGBEncoding;
     const pm=new THREE.MeshBasicMaterial({map:rt.texture,transparent:true,toneMapped:false,side:THREE.DoubleSide,depthTest:false});
