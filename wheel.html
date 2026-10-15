@@ -9,56 +9,85 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Reem+Kufi:wght@500;700&display=swap">
 <style>
 [hidden]{display:none!important}
-:root{--asphalt:#17191d;--asphalt-2:#22252b;--asphalt-3:#2d3139;--paint:#f1eee6;--muted:#a2a7b0;--kerb:#f2c230;--go:#3cc07e;--stop:#d8382c;
+:root{--asphalt:#17191d;--asphalt-2:#22252b;--asphalt-3:#2d3139;--paint:#f1eee6;--muted:#a2a7b0;--kerb:#f2c230;--go:#3cc07e;--stop:#d8382c;--sig:#ffa21f;
   --display:'Reem Kufi','IBM Plex Sans Arabic',Tahoma,sans-serif;--body:'IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;color-scheme:dark}
 html,body{height:100%;margin:0;overflow:hidden;background:var(--asphalt)}
-body{color:var(--paint);font-family:var(--body);font-size:14px;line-height:1.5;overscroll-behavior:none;-webkit-user-select:none;user-select:none;touch-action:none}
-button{font-family:inherit;cursor:pointer}
-/* the stage is always landscape: in portrait it is turned 90° so the phone is held sideways */
-#stage{position:fixed;inset:0;display:flex;flex-direction:column;gap:8px;box-sizing:border-box;
-  padding:max(10px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+body{color:var(--paint);font-family:var(--body);font-size:14px;line-height:1.45;overscroll-behavior:none;-webkit-user-select:none;user-select:none;touch-action:none;-webkit-touch-callout:none}
+button{font-family:inherit;cursor:pointer;color:inherit;-webkit-tap-highlight-color:transparent}
+/* Always landscape: in portrait the stage is turned 90° so the phone is held sideways */
+#stage{position:fixed;inset:0;display:flex;flex-direction:column;gap:6px;box-sizing:border-box;
+  padding:max(8px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
 @media (orientation:portrait){
   #stage{inset:auto;top:0;left:100vw;width:100vh;height:100vw;transform:rotate(90deg);transform-origin:top left;
-    padding:max(10px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-left)) max(16px,env(safe-area-inset-bottom))}
+    padding:max(8px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-left)) max(14px,env(safe-area-inset-bottom))}
   @supports (height:100dvh){#stage{width:100dvh;height:100dvw;left:100dvw}}
 }
-.kerb{height:6px;background:repeating-linear-gradient(90deg,var(--kerb) 0 28px,#0c0d0f 28px 56px);border-radius:2px;flex:none}
-.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex:none}
-h1{font-family:var(--display);font-size:1.25rem;margin:0}
-.join{display:flex;gap:6px;align-items:center}
-input[type=text]{background:var(--asphalt-2);border:1px solid #444a55;border-radius:9px;color:var(--paint);font-size:1.1rem;width:5.2em;text-align:center;letter-spacing:.2em;padding:4px;font-family:var(--display);direction:ltr}
-.btn{background:var(--kerb);color:#111;border:0;border-radius:9px;padding:8px 14px;font-weight:700;font-size:.95rem}
-.btn.ghost{background:var(--asphalt-3);color:var(--paint)}
-.main{flex:1;display:flex;flex-direction:row;align-items:center;gap:18px;min-height:0}
-.wheelBox{height:100%;flex:none;display:flex;align-items:center;justify-content:center;aspect-ratio:1;max-width:58%}
-#wheel{height:100%;width:100%;touch-action:none}
-.side{flex:1;display:flex;flex-direction:column;gap:9px;min-width:0;max-height:100%;overflow:auto;touch-action:pan-y}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex:none;min-height:36px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+h1{font-family:var(--display);font-size:1.15rem;margin:0;white-space:nowrap}
+.spd{font-family:var(--display);font-size:1.4rem;font-variant-numeric:tabular-nums;direction:ltr}
+.spd small{font-size:.7rem;color:var(--muted);font-family:var(--body)}
+.row{display:flex;gap:8px;align-items:center}
 .dot{width:10px;height:10px;border-radius:50%;background:#666;flex:none}
 .dot.on{background:var(--go);box-shadow:0 0 0 4px #3cc07e33}
-.msg{color:var(--muted);font-size:.88rem;margin:0}
-.err{color:#ff8a7e}
-.meter{height:8px;background:var(--asphalt-2);border-radius:4px;position:relative;overflow:hidden;direction:ltr}
-.meter i{position:absolute;top:0;bottom:0;left:50%;width:0;background:var(--kerb)}
-.sens{display:flex;flex-direction:column;gap:2px;background:var(--asphalt-2);border-radius:10px;padding:8px 12px}
+.btn{background:var(--kerb);color:#111;border:0;border-radius:9px;padding:7px 13px;font-weight:700;font-size:.92rem}
+.btn.ghost{background:var(--asphalt-3);color:var(--paint)}
+input[type=text]{background:var(--asphalt-2);border:1px solid #444a55;border-radius:9px;color:var(--paint);font-size:1.05rem;width:4.8em;text-align:center;letter-spacing:.2em;padding:4px;font-family:var(--display);direction:ltr}
+/* physical layout: controls | wheel | pedals (left to right) */
+.main{flex:1;display:flex;direction:ltr;align-items:stretch;gap:12px;min-height:0}
+.ctrls{flex:0 0 31%;display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:1fr;gap:6px;direction:ltr;min-width:0}
+.k{background:var(--asphalt-2);border:1px solid #30343c;border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;font-size:.78rem;color:var(--muted);padding:2px;min-height:0;touch-action:none}
+.k svg{width:24px;height:24px}
+.k svg *{stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.k b{font-family:var(--display);font-size:1.25rem;color:var(--paint);line-height:1.1}
+.k.wide{grid-column:span 2}
+.k.on{background:#2b3a2f;border-color:var(--go);color:var(--go)}
+.k.on b{color:#111}
+.k.gear.on{background:var(--kerb);border-color:var(--kerb)}
+.k.sig.on{background:#3a2e17;border-color:var(--sig);color:var(--sig)}
+.k.warn{border-color:var(--stop);color:#ff8a7e}
+.k:active,.k.press{filter:brightness(1.35)}
+.wheelBox{flex:1;display:flex;align-items:center;justify-content:center;min-width:0}
+#wheel{height:100%;max-width:100%;aspect-ratio:1;touch-action:none}
+.pedals{flex:0 0 22%;display:flex;gap:8px;align-items:stretch;min-width:0}
+.pedal{flex:1;border:0;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:12px;font-weight:700;font-size:1rem;touch-action:none;
+  background:repeating-linear-gradient(0deg,#2d3139 0 10px,#262a31 10px 20px)}
+.pedal.brake{flex:1.25;color:#ff8a7e;border:2px solid #4a2522}
+.pedal.gas{color:var(--go);border:2px solid #23402f;margin-top:16%}
+.pedal.press{filter:brightness(1.6);transform:scale(.97)}
+/* settings sheet */
+#sheet{position:absolute;inset:8px;background:#111317f7;border-radius:14px;padding:14px 18px;z-index:6;display:flex;flex-direction:column;gap:10px;overflow:auto;touch-action:pan-y;border-top:5px solid var(--kerb)}
+.sens{display:flex;flex-direction:column;gap:2px}
 .sens label{display:flex;justify-content:space-between;font-weight:500}
 .sens label b{font-family:var(--display);color:var(--kerb);font-variant-numeric:tabular-nums}
 input[type=range]{width:100%;accent-color:var(--kerb);direction:ltr;touch-action:pan-x}
 .ends{display:flex;justify-content:space-between;color:var(--muted);font-size:.78rem;direction:ltr}
-#start{position:absolute;inset:0;background:#0b0c0ef5;display:grid;place-items:center;padding:24px;text-align:center;z-index:5}
-#start div{display:flex;flex-direction:column;gap:12px;align-items:center;max-width:460px}
+.msg{color:var(--muted);font-size:.86rem;margin:0}
+.err{color:#ff8a7e}
+#start{position:absolute;inset:0;background:#0b0c0ef5;display:grid;place-items:center;padding:20px;text-align:center;z-index:7}
+#start div{display:flex;flex-direction:column;gap:12px;align-items:center;max-width:480px}
 #start b{font-family:var(--display);font-size:1.5rem}
 </style>
 </head>
 <body>
 <div id="stage">
-<div class="kerb"></div>
 <div class="top">
-  <h1>الدركسيون</h1>
-  <div class="row" style="gap:6px"><span class="dot" id="dot"></span><span id="link">مش متوصل</span></div>
-  <div class="join"><input type="text" id="code" inputmode="numeric" maxlength="4" placeholder="0000" aria-label="الكود اللي على اللابتوب"><button class="btn" id="joinBtn">اتصلي</button></div>
+  <div class="brand"><h1>الدركسيون</h1><span class="row" style="gap:6px"><span class="dot" id="dot"></span><span id="link" class="msg">مش متوصل</span></span></div>
+  <div class="spd" id="spd">0 <small>كم/س</small></div>
+  <div class="row"><input type="text" id="code" inputmode="numeric" maxlength="4" placeholder="0000" aria-label="الكود اللي على اللابتوب"><button class="btn" id="joinBtn">اتصلي</button><button class="btn ghost" id="setBtn" aria-label="الإعدادات">إعدادات</button></div>
 </div>
 <div class="main">
+  <div class="ctrls">
+    <button class="k gear" data-g="P"><b>P</b></button>
+    <button class="k gear" data-g="R"><b>R</b></button>
+    <button class="k gear" data-g="N"><b>N</b></button>
+    <button class="k gear" data-g="D"><b>D</b></button>
+    <button class="k sig wide" id="sigL"><svg viewBox="0 0 24 24"><path d="M10 5 3 12l7 7M3 12h18"/></svg>إشارة شمال</button>
+    <button class="k sig wide" id="sigR"><svg viewBox="0 0 24 24"><path d="M14 5l7 7-7 7M21 12H3"/></svg>إشارة يمين</button>
+    <button class="k wide warn" id="beltK"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><path d="M7 21v-7a5 5 0 0 1 10 0v7M8 10l9 9"/></svg>الحزام</button>
+    <button class="k" id="lightsK"><svg viewBox="0 0 24 24"><path d="M10 6c-4 0-6 2.5-6 6s2 6 6 6zM14 8h7M14 12h7M14 16h7"/></svg>أنوار</button>
+    <button class="k" id="hornK"><svg viewBox="0 0 24 24"><path d="M4 10v4h3l6 4V6L7 10zM17 9a4 4 0 0 1 0 6"/></svg>كلاكس</button>
+  </div>
   <div class="wheelBox">
   <svg id="wheel" viewBox="-110 -110 220 220" aria-label="الدركسيون">
     <g id="wheelG">
@@ -70,22 +99,28 @@ input[type=range]{width:100%;accent-color:var(--kerb);direction:ltr;touch-action
     </g>
   </svg>
   </div>
-  <div class="side">
-    <div class="meter"><i id="bar"></i></div>
-    <div class="sens">
-      <label for="sens">حساسية الدركسيون <b id="sensV">5</b></label>
-      <input type="range" id="sens" min="1" max="10" step="1" value="5">
-      <div class="ends"><span>هادي</span><span>سريع</span></div>
-    </div>
-    <div class="msg" id="mode">ميلي التليفون يمين وشمال.</div>
-    <div class="row">
-      <button class="btn" id="centerBtn">سنتر</button>
-      <button class="btn ghost" id="invBtn">اعكسي الاتجاه</button>
-      <button class="btn ghost" id="fsBtn">ملء الشاشة</button>
-    </div>
-    <p class="msg">امسكي التليفون بالعرض زي الدركسيون. لو العربية بتميل وانتي ماسكاه معدول، دوسي "سنتر". البنزين والفرامل على كيبورد اللابتوب.</p>
-    <p class="msg err" id="err"></p>
+  <div class="pedals">
+    <button class="pedal brake" id="brake">فرامل</button>
+    <button class="pedal gas" id="gas">بنزين</button>
   </div>
+</div>
+
+<div id="sheet" hidden>
+  <div class="row" style="justify-content:space-between"><b style="font-family:var(--display);font-size:1.2rem">الإعدادات</b><button class="btn" id="closeSheet">تمام</button></div>
+  <div class="sens">
+    <label for="sens">حساسية الدركسيون <b id="sensV">5</b></label>
+    <input type="range" id="sens" min="1" max="10" step="1" value="5">
+    <div class="ends"><span>هادي</span><span>سريع</span></div>
+  </div>
+  <div class="row" style="flex-wrap:wrap">
+    <button class="btn" id="centerBtn">سنتر</button>
+    <button class="btn ghost" id="invBtn">اعكسي الاتجاه</button>
+    <button class="btn ghost" id="tiltBtn">الميل</button>
+    <button class="btn ghost" id="fsBtn">ملء الشاشة</button>
+  </div>
+  <p class="msg" id="mode">ميلي التليفون يمين وشمال.</p>
+  <p class="msg">"سنتر": امسكي التليفون معدول ودوسي عليه لو العربية بتميل لوحدها. تقدري كمان تلفي الدركسيون بصباعك في أي وقت. الكيبورد على اللابتوب شغال مع الزراير دي في نفس الوقت.</p>
+  <p class="msg err" id="err"></p>
 </div>
 <div id="start"><div><b>جاهزة تسوقي؟</b><p class="msg">امسكي التليفون بالعرض. هنطلب إذن حساس الحركة عشان الميل يشتغل.</p><button class="btn" id="goBtn">ابدئي</button></div></div>
 </div>
@@ -99,15 +134,16 @@ const DEG=Math.PI/180;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const normA=a=>{a%=Math.PI*2;if(a>Math.PI)a-=Math.PI*2;if(a<-Math.PI)a+=Math.PI*2;return a;};
 const store={get(k,d){try{const v=localStorage.getItem('lyw_'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem('lyw_'+k,JSON.stringify(v));}catch(e){}}};
-const W={s:0,raw:0,mode:'tilt',inv:store.get('inv',false),off:store.get('off',0),sens:store.get('sens',5),gx:0,gy:0,got:false,wheelAng:0,peer:null,conn:null,code:null};
+const W={s:0,raw:0,mode:'tilt',inv:store.get('inv',false),off:store.get('off',0),sens:store.get('sens',5),gx:0,gy:0,got:false,wheelAng:0,peer:null,conn:null,code:null,gas:false,brk:false};
 const lockDeg=()=>95-W.sens*7; // 1 → 88°, 5 → 60°, 10 → 25° of tilt for full lock
 const qc=new URLSearchParams(location.search).get('c');
 $('#code').value=(qc&&/^\d{4}$/.test(qc))?qc:store.get('code','');
 $('#sens').value=W.sens;$('#sensV').textContent=W.sens;
+const buzz=()=>{try{navigator.vibrate&&navigator.vibrate(12);}catch(e){}};
 
 function setLink(t,on){$('#link').textContent=t;$('#dot').classList.toggle('on',!!on);}
-/* Steering angle from gravity, measured for a phone held sideways.
-   Uses only the device's own x/y axes, so it is the same whichever way the screen rotates. */
+function send(o){if(W.conn&&W.conn.open){try{W.conn.send(o);}catch(e){}}}
+/* Steering angle from gravity for a phone held sideways; device x/y only, so screen rotation doesn't matter. */
 function onMotion(e){
   const g=e.accelerationIncludingGravity;if(!g||g.x==null||g.y==null)return;
   W.got=true;W.gx=W.gx*.6+g.x*.4;W.gy=W.gy*.6+g.y*.4;
@@ -118,7 +154,7 @@ function onMotion(e){
 async function enableTilt(){
   $('#err').textContent='';
   try{if(window.DeviceMotionEvent&&typeof DeviceMotionEvent.requestPermission==='function'){const r=await DeviceMotionEvent.requestPermission();if(r!=='granted'){$('#err').textContent='محتاجين إذن الحركة عشان الميل يشتغل. افتحي الصفحة تاني ووافقي.';}}}catch(e){}
-  window.addEventListener('devicemotion',onMotion);
+  window.removeEventListener('devicemotion',onMotion);window.addEventListener('devicemotion',onMotion);
   W.mode='tilt';
   $('#mode').textContent='الميل شغال. ميلي التليفون يمين وشمال.';
   setTimeout(()=>{if(!W.got){W.mode='touch';$('#mode').textContent='الحساس مش باعت حاجة. اتأكدي إن الصفحة مفتوحة بـ https، أو لفي الدركسيون بصباعك.';}},2500);
@@ -128,14 +164,15 @@ function goFull(){try{const el=document.documentElement;const p=el.requestFullsc
 function connect(){
   const c=$('#code').value.trim();
   $('#err').textContent='';
-  if(!/^\d{4}$/.test(c)){$('#err').textContent='اكتبي الكود اللي ظاهر على اللابتوب (٤ أرقام).';return;}
+  if(!/^\d{4}$/.test(c)){$('#err').textContent='اكتبي الكود اللي ظاهر على اللابتوب (٤ أرقام).';$('#sheet').hidden=false;return;}
   W.code=c;store.set('code',c);
   if(!window.Peer){$('#err').textContent='مكتبة الاتصال ماتحملتش. اتأكدي من النت وحدثي الصفحة.';return;}
   setLink('بيتوصل…');
   const go=()=>{
     try{W.conn&&W.conn.close();}catch(e){}
-    const conn=W.peer.connect('lyard-'+c,{reliable:false,serialization:'json'});W.conn=conn;
+    const conn=W.peer.connect('lyard-'+c,{reliable:true,serialization:'json'});W.conn=conn;
     conn.on('open',()=>{setLink('متوصل باللابتوب',true);$('#err').textContent='';});
+    conn.on('data',d=>{if(d&&d.st)showState(d.st);});
     conn.on('close',()=>{setLink('اتفصل، بحاول تاني…');setTimeout(()=>{if(W.conn===conn)go();},1500);});
     conn.on('error',()=>{});
   };
@@ -148,24 +185,48 @@ function connect(){
     else if(e&&(e.type==='network'||e.type==='server-error'||e.type==='socket-error'))setLink('مشكلة في النت، بحاول تاني…');
   });
 }
+/* state coming back from the laptop lights up the buttons */
+function showState(st){
+  document.querySelectorAll('.gear').forEach(b=>b.classList.toggle('on',st.g===b.dataset.g));
+  $('#beltK').classList.toggle('on',!!st.b);$('#beltK').classList.toggle('warn',!st.b);
+  $('#lightsK').classList.toggle('on',!!st.l);
+  const blink=Math.floor(Date.now()/380)%2===0;
+  $('#sigL').classList.toggle('on',st.sg==='L'&&blink);$('#sigR').classList.toggle('on',st.sg==='R'&&blink);
+  $('#spd').firstChild.nodeValue=(st.k||0)+' ';
+}
+/* buttons */
+document.querySelectorAll('.gear').forEach(b=>b.addEventListener('pointerdown',e=>{e.preventDefault();buzz();send({ev:'gear',g:b.dataset.g});}));
+$('#sigL').addEventListener('pointerdown',e=>{e.preventDefault();buzz();send({ev:'sig',d:'L'});});
+$('#sigR').addEventListener('pointerdown',e=>{e.preventDefault();buzz();send({ev:'sig',d:'R'});});
+$('#beltK').addEventListener('pointerdown',e=>{e.preventDefault();buzz();send({ev:'belt'});});
+$('#lightsK').addEventListener('pointerdown',e=>{e.preventDefault();buzz();send({ev:'lights'});});
+function hold(el,on,off){
+  const down=e=>{e.preventDefault();try{el.setPointerCapture(e.pointerId);}catch(_){}el.classList.add('press');on();};
+  const up=()=>{el.classList.remove('press');off();};
+  el.addEventListener('pointerdown',down);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);el.addEventListener('lostpointercapture',up);
+  el.addEventListener('contextmenu',e=>e.preventDefault());
+}
+hold($('#gas'),()=>{W.gas=true;buzz();},()=>{W.gas=false;});
+hold($('#brake'),()=>{W.brk=true;buzz();},()=>{W.brk=false;});
+hold($('#hornK'),()=>send({ev:'horn',on:true}),()=>send({ev:'horn',on:false}));
+/* finger steering on the wheel */
 (function touch(){
   const el=$('#wheel');let act=false,last=0;
   const ang=e=>{const r=el.getBoundingClientRect();return Math.atan2(e.clientX-(r.left+r.width/2),-(e.clientY-(r.top+r.height/2)));};
-  el.addEventListener('pointerdown',e=>{act=true;last=ang(e);if(W.mode!=='touch'){W.mode='touch';W.wheelAng=W.s*2.6;$('#mode').textContent='بتلفي بصباعك. دوسي "سنتر" عشان ترجعي للميل.';}try{el.setPointerCapture(e.pointerId);}catch(_){}});
+  el.addEventListener('pointerdown',e=>{act=true;last=ang(e);if(W.mode!=='touch'){W.mode='touch';W.wheelAng=W.s*2.6;$('#mode').textContent='بتلفي بصباعك. دوسي "الميل" عشان ترجعي للميل.';}try{el.setPointerCapture(e.pointerId);}catch(_){}});
   el.addEventListener('pointermove',e=>{if(!act)return;const a=ang(e);W.wheelAng=clamp(W.wheelAng+normA(a-last),-2.6,2.6);last=a;W.s=W.wheelAng/2.6;});
   const up=()=>{act=false;};el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
 })();
-setInterval(()=>{if(W.conn&&W.conn.open){try{W.conn.send({s:Math.round(W.s*1000)/1000});}catch(e){}}},33);
-(function draw(){
-  $('#wheelG').setAttribute('transform',`rotate(${(W.s*150).toFixed(1)})`);
-  const b=$('#bar');const p=Math.abs(W.s)*50;b.style.width=p+'%';b.style.left=(W.s<0?50-p:50)+'%';
-  requestAnimationFrame(draw);
-})();
+setInterval(()=>send({s:Math.round(W.s*1000)/1000,gas:W.gas,brk:W.brk}),33);
+(function draw(){$('#wheelG').setAttribute('transform',`rotate(${(W.s*150).toFixed(1)})`);requestAnimationFrame(draw);})();
 async function wake(){try{if(navigator.wakeLock)await navigator.wakeLock.request('screen');}catch(e){}}
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')wake();});
-$('#goBtn').onclick=()=>{$('#start').hidden=true;goFull();enableTilt();wake();if($('#code').value)connect();else $('#code').focus();};
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')wake();else{W.gas=false;W.brk=false;}});
+$('#goBtn').onclick=()=>{$('#start').hidden=true;goFull();enableTilt();wake();if($('#code').value)connect();else{$('#sheet').hidden=false;$('#code').focus();}};
 $('#joinBtn').onclick=connect;
 $('#code').addEventListener('keydown',e=>{if(e.key==='Enter')connect();});
+$('#setBtn').onclick=()=>{$('#sheet').hidden=false;};
+$('#closeSheet').onclick=()=>{$('#sheet').hidden=true;};
+$('#tiltBtn').onclick=enableTilt;
 $('#centerBtn').onclick=()=>{
   W.wheelAng=0;
   if(W.got){W.off=W.raw;store.set('off',W.off);W.mode='tilt';$('#mode').textContent='اتعمل سنتر. ميلي التليفون يمين وشمال.';}

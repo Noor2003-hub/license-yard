@@ -808,7 +808,7 @@ function readPhone(){
 }
 function physics(dt){
   const c=G.car,k=G.keys;
-  const gas=!!(k.ArrowUp||k.KeyW||G.padGas),brk=!!(k.ArrowDown||k.KeyS||k.Space||G.padBrake),lf=!!k.ArrowLeft,rt=!!k.ArrowRight;
+  const ph=G.phoneOn;const gas=!!(k.ArrowUp||k.KeyW||G.padGas||(ph&&G.phGas)),brk=!!(k.ArrowDown||k.KeyS||k.Space||G.padBrake||(ph&&G.phBrk)),lf=!!k.ArrowLeft,rt=!!k.ArrowRight;
   c.gas=gas;c.brake=brk;
   if(G.padOn&&!lf&&!rt){c.steer+=clamp(clamp(G.padS*G.sens,-1,1)-c.steer,-5*dt,5*dt);c.kbd=c.steer;}
   else if(G.phoneOn&&!lf&&!rt){c.steer+=clamp(clamp(G.phoneS*G.sens,-1,1)-c.steer,-5*dt,5*dt);c.kbd=c.steer;}
@@ -1023,6 +1023,18 @@ function mirrorCheck(k,fromEye){
   G.mirrorT[k]=now;if(G.cam==='driver'&&!fromEye)glance(k);
   if(G.B&&G.B.habit&&!G.mirrorAuto&&Math.abs(G.car.v)>3&&now-prev>5&&G.habitBonus<10){G.habitBonus++;G.score=Math.min(100,G.score+1);toast('بصة في المراية','good',1);}
 }
+function toggleBelt(){const c=G.car;c.belt=!c.belt;toast(c.belt?'لبستي الحزام':'قلعتي الحزام','info');if(c.belt&&!G.f.beltOK&&c.gear==='P'&&!G.f.moveT){G.f.beltOK=1;score(2,'الحزام قبل أي حاجة');}}
+function toggleLights(){const c=G.car;c.lights=!c.lights;}
+function toggleSignal(d){const c=G.car;if(c.signal===d){c.signal=null;c.sigOffT=G.time;}else{c.signal=d;c.sigT=G.time;c.sigArm=false;}c.lastSig=d;}
+function phoneAction(d){
+  if(d.ev==='horn'){S.horn(!!d.on&&G.running&&!G.paused);return;}
+  if(!G.running||G.paused||G.done||G.calib||!G.car)return;
+  S.init();
+  if(d.ev==='gear'&&['P','R','N','D'].includes(d.g))shift(d.g);
+  else if(d.ev==='sig'&&(d.d==='L'||d.d==='R'))toggleSignal(d.d);
+  else if(d.ev==='belt')toggleBelt();
+  else if(d.ev==='lights')toggleLights();
+}
 function shift(gear){
   const c=G.car;if(c.gear===gear)return;
   if(Math.abs(c.v)>.6&&(gear==='P'||(gear==='R'&&c.v>0)||(gear==='D'&&c.v<0))){toast('وقفي العربية الأول قبل ما تغيري الفتيس','info');return;}
@@ -1039,9 +1051,9 @@ document.addEventListener('keydown',e=>{
   G.keys[k]=true;
   if(e.repeat)return;
   const c=G.car;
-  if(k==='KeyB'){c.belt=!c.belt;toast(c.belt?'لبستي الحزام':'قلعتي الحزام','info');if(c.belt&&!G.f.beltOK&&c.gear==='P'&&!G.f.moveT){G.f.beltOK=1;score(2,'الحزام قبل أي حاجة');}}
-  else if(k==='KeyL'){c.lights=!c.lights;}
-  else if(k==='KeyQ'||k==='KeyE'){const d=k==='KeyQ'?'L':'R';if(c.signal===d){c.signal=null;c.sigOffT=G.time;}else{c.signal=d;c.sigT=G.time;c.sigArm=false;}c.lastSig=d;}
+  if(k==='KeyB')toggleBelt();
+  else if(k==='KeyL')toggleLights();
+  else if(k==='KeyQ'||k==='KeyE')toggleSignal(k==='KeyQ'?'L':'R');
   else if(k==='KeyD')shift('D');else if(k==='KeyR')shift('R');else if(k==='KeyN')shift('N');else if(k==='KeyP')shift('P');
   else if(k==='Digit1'||k==='Numpad1')mirrorCheck(1);else if(k==='Digit2'||k==='Numpad2')mirrorCheck(2);else if(k==='Digit3'||k==='Numpad3')mirrorCheck(3);
   else if(k==='KeyV'){const o=['driver','chase','top'];G.cam=o[(o.indexOf(G.cam)+1)%3];}
@@ -1124,6 +1136,10 @@ function showResult(pass){
 }
 function wheelLink(){return location.origin+location.pathname.replace(/[^/]*$/,'')+'wheel.html';}
 function setLink(t,on){$('#menuLink').textContent=t;$('#menuDot').classList.toggle('on',!!on);}
+const CONNS=new Set();
+setInterval(()=>{if(!CONNS.size)return;const c=G.car;
+  const st=(G.running&&c)?{g:c.gear,b:c.belt,l:c.lights,sg:c.signal,k:Math.round(Math.abs(c.v)*3.6),on:!G.paused&&!G.done}:{on:false};
+  CONNS.forEach(cn=>{try{if(cn.open)cn.send({st});}catch(e){}});},200);
 function startPeer(){
   $('#menuCode').textContent=code;$('#gCode').textContent=code;$('#wheelUrl').textContent=wheelLink().replace(/^https?:\/\//,'');
   try{$('#qr').innerHTML='';if(window.QRCode)new QRCode($('#qr'),{text:wheelLink()+'?c='+code,width:132,height:132});else $('#qr').hidden=true;}catch(e){$('#qr').hidden=true;}
@@ -1132,7 +1148,10 @@ function startPeer(){
   peer.on('open',()=>{G.peerReady=true;setLink('مستني التليفون…');});
   peer.on('connection',conn=>{
     conn.on('open',()=>setLink('التليفون متوصل',true));
-    conn.on('data',d=>{if(d&&typeof d.s==='number'&&isFinite(d.s)){G.phoneS=clamp(d.s,-1,1);G.peerT=performance.now();}});
+    conn.on('data',d=>{if(!d||typeof d!=='object')return;
+      if(typeof d.s==='number'&&isFinite(d.s)){G.phoneS=clamp(d.s,-1,1);G.peerT=performance.now();G.phGas=!!d.gas;G.phBrk=!!d.brk;}
+      if(typeof d.ev==='string')phoneAction(d);});
+    CONNS.add(conn);conn.on('close',()=>CONNS.delete(conn));
     conn.on('close',()=>setLink('التليفون فصل، امسحي الكود تاني'));
   });
   peer.on('disconnected',()=>{try{peer.reconnect();}catch(e){}});
