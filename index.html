@@ -74,6 +74,13 @@ p{margin:0}
 #mRear.check{transform:scale(1.2) translateY(8px)}
 #mLeft.check{transform-origin:left bottom}#mRight.check{transform-origin:right bottom}
 .mirror.nag{animation:nag 1s infinite}
+.mirror.target{animation:tgt .8s infinite;z-index:4}
+@keyframes tgt{50%{box-shadow:0 0 0 7px var(--kerb),0 6px 18px #0008}}
+.calib{position:absolute;top:44%;left:50%;transform:translate(-50%,-50%);background:#111317f2;border-radius:14px;padding:16px 22px;text-align:center;display:flex;flex-direction:column;gap:6px;max-width:80vw}
+.calib b{font-family:var(--display);font-size:1.6rem}
+.sensBox{display:flex;flex-direction:column;gap:2px;min-width:220px}
+.sensBox label{display:flex;justify-content:space-between;gap:10px}
+.sensBox input{accent-color:var(--kerb);direction:ltr;width:100%}
 @keyframes nag{50%{box-shadow:0 0 0 4px #f2c230aa,0 6px 18px #0008}}
 .card{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:calc(14px + env(safe-area-inset-right,0px));width:min(24vw,290px);background:#111317e6;border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:2px}
 .card .t{font-family:var(--display);font-size:1.05rem}
@@ -149,6 +156,11 @@ p{margin:0}
     </div>
     <div class="pairBox" style="align-items:center;gap:14px"><div id="qr" style="background:#fff;padding:6px;border-radius:8px;line-height:0"></div><div style="display:flex;flex-direction:column;gap:4px;min-width:0"><b>وصلي التليفون</b><span class="note">امسحي الكود بكاميرا التليفون، أو افتحي <span id="wheelUrl" style="direction:ltr;unicode-bidi:embed"></span> واكتبي</span><span class="code" id="menuCode">----</span><span class="row" style="gap:6px"><span class="dot" id="menuDot"></span><span id="menuLink" class="note">مستني التليفون</span></span></div></div>
   </div>
+  <div class="pairBox" style="flex-wrap:wrap;justify-content:space-between;gap:14px">
+    <div style="display:flex;flex-direction:column;gap:4px;min-width:0;flex:1 1 300px"><b>تتبع العين للمرايات</b><span class="note">الكاميرا بتشوف إمتى بتبصي في المرايات. لو قفلتيها أو مشتغلتش، المرايات بتتحسبلك أوتوماتيك ومش هيتخصم منك حاجة.</span><span class="row" style="gap:6px"><span class="dot" id="eyeDot2"></span><span class="note" id="eyeStatus">مقفول</span></span></div>
+    <div class="row"><button class="btn" id="eyeBtn">شغلي الكاميرا</button><button class="btn ghost" id="eyeCalBtn" hidden>اظبطيها من الأول</button></div>
+    <div class="sensBox"><label for="sensMenu">حساسية الدركسيون <b id="sensMenuV">100%</b></label><input type="range" id="sensMenu" min="0.5" max="1.6" step="0.05"><span class="note">بتأثر على التليفون ويد التحكم والأسهم.</span></div>
+  </div>
   <div class="levels" id="levels"></div>
   <h2>المفاتيح</h2>
   <div class="keysGrid" id="keysGrid"></div>
@@ -158,16 +170,18 @@ p{margin:0}
 <div id="game" hidden>
   <canvas id="view"></canvas>
   <div class="flash" id="flash"></div>
-  <div class="mirror" id="mRear"><canvas id="cRear"></canvas><i>2</i></div>
-  <div class="mirror" id="mLeft"><canvas id="cLeft"></canvas><i>1</i></div>
-  <div class="mirror" id="mRight"><canvas id="cRight"></canvas><i>3</i></div>
+  <div class="mirror" id="mRear"><canvas id="cRear"></canvas></div>
+  <div class="mirror" id="mLeft"><canvas id="cLeft"></canvas></div>
+  <div class="mirror" id="mRight"><canvas id="cRight"></canvas></div>
   <div class="card"><div class="t" id="hTitle"></div><div class="o" id="hObj"></div><div class="sc"><b id="hScore">100</b><span>من ١٠٠ · النجاح ٨٠</span></div></div>
   <div class="chips">
     <div class="chip"><span class="dot" id="gDot"></span><span id="gLink">التليفون مش متوصل</span><span class="code" id="gCode">----</span></div>
     <button class="chip" id="camChip">الكاميرا: <b id="camName">جوه العربية</b> <kbd>V</kbd></button>
+    <div class="chip"><span class="dot" id="eyeDot"></span><span id="eyeChip">المرايات أوتوماتيك</span></div>
     <button class="chip" id="keysChip">المفاتيح <kbd>K</kbd></button>
   </div>
   <div class="toasts" id="toasts"></div>
+  <div class="calib" id="calib" hidden><span class="note">بنظبط تتبع العين</span><b id="calibT">بصي على الطريق قدامك</b><span class="note" id="calibS">ثبتي عينك ومتحركيش راسك كتير</span></div>
   <div class="hint" id="hint"></div>
   <div class="keysPanel" id="keysPanel" hidden></div>
   <div class="dash">
@@ -184,7 +198,8 @@ p{margin:0}
 <div class="overlay" id="ovBrief" hidden><div class="sheet" id="briefSheet"></div></div>
 <div class="overlay" id="ovPause" hidden><div class="sheet">
   <h2>وقفة</h2>
-  <div class="row"><button class="btn" id="resumeBtn">كملي</button><button class="btn ghost" id="restartBtn">ابدئي المستوى من الأول</button><button class="btn ghost" id="menuBtn">كل المستويات</button></div>
+  <div class="sensBox"><label for="sensPause">حساسية الدركسيون <b id="sensPauseV">100%</b></label><input type="range" id="sensPause" min="0.5" max="1.6" step="0.05"></div>
+  <div class="row"><button class="btn" id="resumeBtn">كملي</button><button class="btn ghost" id="restartBtn">ابدئي المستوى من الأول</button><button class="btn ghost" id="menuBtn">كل المستويات</button><button class="btn ghost" id="eyeCalPause" hidden>اظبطي تتبع العين</button></div>
 </div></div>
 <div class="overlay" id="ovResult" hidden><div class="sheet" id="resultSheet"></div></div>
 
@@ -204,7 +219,7 @@ const arNum=n=>String(n);
 let code=store.get('code',null);
 if(!code||!/^\d{4}$/.test(code)){code=String(1000+Math.floor(Math.random()*9000));store.set('code',code);}
 /* ---------- keys reference ---------- */
-const KEYS=[['↑','بنزين'],['↓ أو Space','فرامل'],['← →','دركسيون احتياطي'],['D R N P','الفتيس'],['Q','إشارة شمال'],['E','إشارة يمين'],['B','الحزام'],['L','الأنوار'],['1','المراية الشمال'],['2','المراية اللي فوق'],['3','المراية اليمين'],['H','الكلاكس'],['V','تغيير الكاميرا'],['Esc','وقفة']];
+const KEYS=[['↑','بنزين'],['↓ أو Space','فرامل'],['← →','دركسيون احتياطي'],['D R N P','الفتيس'],['Q','إشارة شمال'],['E','إشارة يمين'],['B','الحزام'],['L','الأنوار'],['H','الكلاكس'],['V','تغيير الكاميرا'],['Esc','وقفة']];
 function keysHTML(){return KEYS.map(k=>`<div>${k[0].split(' ').map(x=>x==='أو'?'أو':`<kbd>${x}</kbd>`).join(' ')}<span>${k[1]}</span></div>`).join('');}
 $('#keysGrid').innerHTML=keysHTML();
 $('#keysPanel').innerHTML=KEYS.map(k=>`<span>${k[0].split(' ').map(x=>x==='أو'?'':`<kbd>${x}</kbd>`).join(' ')}</span><span>${k[1]}</span>`).join('');
@@ -235,7 +250,7 @@ const WB=2.65, RC=1.35, HW=0.9, HD=2.2, MAXS=0.58;
 let THREEOK=typeof THREE!=='undefined';
 let R,scene,camera,mirrors=[],hemi,sun,GEO={},M={},player=null;
 const G={running:false,paused:false,done:false,cam:'driver',lvl:0,B:null,car:null,time:0,score:100,log:[],fail:false,f:{},keys:{},mirrorT:{1:-99,2:-99,3:-99},
-  phoneOn:false,phoneS:0,peerT:0,peerReady:false,padOn:false,padS:0,padInv:store.get('padInv',false),nr:null,glance:{yaw:0,pitch:0,until:0},yaw:0,pitch:-0.05,contacts:{},shake:0,hintT:0};
+  phoneOn:false,phoneS:0,sens:store.get('sens',1),mirrorAuto:true,calib:false,peerT:0,peerReady:false,padOn:false,padS:0,padInv:store.get('padInv',false),nr:null,glance:{yaw:0,pitch:0,until:0},yaw:0,pitch:-0.05,contacts:{},shake:0,hintT:0};
 
 function mat(c,o){return new THREE.MeshLambertMaterial(Object.assign({color:c},o||{}));}
 function canvasTex(w,h,draw){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.anisotropy=4;return t;}
@@ -454,12 +469,12 @@ function parallelCoach(side,frontZ,gapZ1){
     if(c.gear!=='R'){
       if(G.inGoal&&Math.abs(ang)<8) return 'اتعدلتي! لو محتاجة تتسنتري اتقدمي سنة، وبعدين دوسي فرامل وحطي P.';
       if(cz<frontZ-1.2) return `امشي لحد ما مرايتك تبقى قصاد مراية العربية اللي قدام المكان، وسيبي بينكم حوالي نص متر. واعملي إشارة ${PP(side)} (${side<0?'E':'Q'}).`;
-      if(Math.abs(c.v)<.1) return 'تمام كده. بصي في المراية اللي فوق (2)، ودوسي فرامل وحطي R.';
+      if(Math.abs(c.v)<.1) return 'تمام كده. بصي في المراية اللي فوق، ودوسي فرامل وحطي R.';
       return 'اقفي هنا: دوسي فرامل (↓).';
     }
     const rearZ=c.z;
     if(ang<4&&rearZ>gapZ1-0.4) return 'ارجعي على طول ببطء والدركسيون معدول، لحد ما الكرسي اللي ورا يبقى قصاد شنطة العربية اللي جنبك.';
-    if(ang<38) return `لفي الدركسيون كله ${PP(side)} وارجعي بالراحة، لحد ما العربية تميل حوالي ٤٥ درجة. بصي في المراية ${side<0?'اليمين (3)':'الشمال (1)'}.`;
+    if(ang<38) return `لفي الدركسيون كله ${PP(side)} وارجعي بالراحة، لحد ما العربية تميل حوالي ٤٥ درجة. بصي في المراية ${side<0?'اليمين':'الشمال'}.`;
     const fz=cz+Math.cos(c.h)*HD;
     if(fz>gapZ1+0.1) return 'كده الزاوية مظبوطة. عدلي الدركسيون وكملي رجوع على طول لحد ما مقدمة عربيتك تعدي شنطة العربية اللي قدام.';
     return `دلوقتي لفي الدركسيون كله ${side<0?'شمال':'يمين'} وكملي رجوع لحد ما العربية تتعدل مع الرصيف.`;
@@ -468,7 +483,7 @@ function parallelCoach(side,frontZ,gapZ1){
 const LEVELS=[
 { title:'الطلعة من الركنة', skill:'الحزام، المرايات، الإشارة',
   learn:['تجهيز العربية قبل الحركة: الحزام وبعدين المرايات','الإشارة الشمال والبص في المراية الشمال قبل ما تطلعي من جنب الرصيف','إنك تركني على اليمين في الآخر بإشارة يمين'],
-  steps:['البسي الحزام (B)','بصي في المرايات التلاتة (1 و2 و3)','اعملي إشارة شمال (Q)','دوسي فرامل (↓) وحطي D، وبصي في المراية الشمال (1) تاني واطلعي','في الآخر: إشارة يمين (E)، بصي في المراية اليمين (3)، واركني في المربع الأصفر وحطي P'],
+  steps:['البسي الحزام (B)','بصي في المرايات التلاتة','اعملي إشارة شمال (Q)','دوسي فرامل (↓) وحطي D، وبصي في المراية الشمال تاني واطلعي','في الآخر: إشارة يمين (E)، بصي في المراية اليمين، واركني في المربع الأصفر وحطي P'],
   obj:'اطلعي من جنب الرصيف بأمان، واركني في المربع الأصفر في آخر الشارع.',
   build(B){street(B,-40,230);parked(B,-5.25,7.6);parked(B,-5.25,-7.6);sign(B,'speed',-7.6,25,0,45);pulloverGoal(B,180,190);B.start={x:-5.25,z:0,h:0};B.limit=45;}
 },
@@ -498,7 +513,7 @@ const LEVELS=[
 },
 { title:'تغيير الحارة والمرايات', skill:'المرايات',
   learn:['قبل أي تغيير حارة: مراية، إشارة، وبعدين تتحركي','تاخدي بالك من العربيات اللي جاية من ورا في الحارة التانية','لما تشوفي إسعاف في المراية، تفسحيله'],
-  steps:['امشي في الحارة اليمين','لما تلاقي أعمال طرق: بصي في المراية الشمال (1)، إشارة شمال (Q)، واستني لو فيه عربية جاية','ارجعي اليمين بعدها: مراية يمين (3) وإشارة يمين (E)','هتسمعي إسعاف: بصي في المراية اللي فوق (2) وافسحيله'],
+  steps:['امشي في الحارة اليمين','لما تلاقي أعمال طرق: بصي في المراية الشمال، إشارة شمال (Q)، واستني لو فيه عربية جاية','ارجعي اليمين بعدها: مراية يمين وإشارة يمين (E)','هتسمعي إسعاف: بصي في المراية اللي فوق وافسحيله'],
   obj:'غيري الحارة بأمان كل مرة، وافسحي للإسعاف.',
   build(B){
     road(B,-7.5,0,-30,720);curbZ(B,-7.65,-30,720);box(B,mat(0xcfcac0),.7,.8,750,.4,.4,345);B.statics.push({x:.4,z:345,hw:.35,hd:375,h:0,type:'wall'});
@@ -541,15 +556,15 @@ const LEVELS=[
 },
 { title:'ركنة جنب — يمين', skill:'الركنة الموازية',
   learn:['الركنة بالجنب على الرصيف اليمين بين عربيتين','إمتى تلفي الدركسيون وإمتى تعدليه','تبصي في المراية اللي ورا قبل الرجوع'],
-  steps:['اعملي إشارة يمين (E) واقفي جنب العربية اللي قدام المكان، المرايات قصاد بعض','بصي في المراية اللي فوق (2)، دوسي فرامل وحطي R','ارجعي على طول لحد ما الكرسي اللي ورا يبقى قصاد شنطة العربية اللي جنبك','لفي الدركسيون كله يمين وارجعي بالراحة لحد ما تميلي ٤٥ درجة','عدلي وكملي رجوع، وبعدين لفي كله شمال لحد ما تتعدلي','حطي P. لو حبيتي تشوفي من فوق دوسي V'],
+  steps:['اعملي إشارة يمين (E) واقفي جنب العربية اللي قدام المكان، المرايات قصاد بعض','بصي في المراية اللي فوق، دوسي فرامل وحطي R','ارجعي على طول لحد ما الكرسي اللي ورا يبقى قصاد شنطة العربية اللي جنبك','لفي الدركسيون كله يمين وارجعي بالراحة لحد ما تميلي ٤٥ درجة','عدلي وكملي رجوع، وبعدين لفي كله شمال لحد ما تتعدلي','حطي P. لو حبيتي تشوفي من فوق دوسي V'],
   obj:'اركني بين العربيتين جنب الرصيف اليمين، من غير ما تخبطي.',
   build(B){street(B,-20,170);[24,31,40].forEach(z=>parked(B,-5.25,z));parked(B,-5.25,51.6);parked(B,-5.25,60);parked(B,-5.25,68);
     outline(B,-6.45,-4.05,42.4,49.2,M.yellow);B.goal={type:'park',x0:-6.5,x1:-4.0,z0:42.2,z1:49.4,h:0,tol:8*DEG};
     B.zones.push({kind:'sigzone',x0:-4,x1:0,z0:44,z1:58,dir:'R'});B.start={x:-2,z:0,h:0};B.limit=30;B.hint=parallelCoach(-1,51.6,49.4);}
 },
 { title:'ركنة جنب — شمال', skill:'الركنة الموازية',
-  learn:['نفس الركنة بس على الرصيف الشمال في شارع اتجاه واحد','المراية الشمال (1) هي أهم مراية هنا','إن الدركسيون بيتعكس: الأول شمال وبعدين يمين'],
-  steps:['امشي في الحارة الشمال واعملي إشارة شمال (Q)','اقفي جنب العربية اللي قدام المكان، بصي في المراية اللي فوق (2) وحطي R','ارجعي على طول، وبعدين لفي كله شمال لحد ٤٥ درجة','عدلي وكملي، وبعدين لفي كله يمين لحد ما تتعدلي، وحطي P'],
+  learn:['نفس الركنة بس على الرصيف الشمال في شارع اتجاه واحد','المراية الشمال هي أهم مراية هنا','إن الدركسيون بيتعكس: الأول شمال وبعدين يمين'],
+  steps:['امشي في الحارة الشمال واعملي إشارة شمال (Q)','اقفي جنب العربية اللي قدام المكان، بصي في المراية اللي فوق وحطي R','ارجعي على طول، وبعدين لفي كله شمال لحد ٤٥ درجة','عدلي وكملي، وبعدين لفي كله يمين لحد ما تتعدلي، وحطي P'],
   obj:'اركني بين العربيتين جنب الرصيف الشمال.',
   build(B){street(B,-20,170,{oneway:true});sign(B,'oneway',-7.6,8,0);sign(B,'oneway',7.6,8,0);[24,31,40].forEach(z=>parked(B,5.25,z));parked(B,5.25,51.6);parked(B,5.25,60);parked(B,5.25,68);parked(B,-5.25,36);parked(B,-5.25,56);
     outline(B,4.05,6.45,42.4,49.2,M.yellow);B.goal={type:'park',x0:4.0,x1:6.5,z0:42.2,z1:49.4,h:0,tol:8*DEG};
@@ -557,13 +572,13 @@ const LEVELS=[
 },
 { title:'ركنة ريفيرس في الموقف', skill:'الركنة العمودية بالريفيرس',
   learn:['تدخلي المكان بالضهر بين عربيتين','تستخدمي المرايات الجنب عشان تعرفي مكانك من الخطوط','تبصي ورا قبل ما ترجعي'],
-  steps:['امشي في نص الممر واعملي إشارة يمين (E)','عدي على المكان الأصفر واقفي لما يبقى المكان ورا مرايتك بحوالي مكانين','بصي في المراية اللي فوق (2) وحطي R','لفي الدركسيون كله يمين وارجعي بالراحة، وبصي في المرايات الجنب (1 و3)','لما تبقي موازية للخطوط عدلي وكملي لحد آخر المكان، وحطي P'],
+  steps:['امشي في نص الممر واعملي إشارة يمين (E)','عدي على المكان الأصفر واقفي لما يبقى المكان ورا مرايتك بحوالي مكانين','بصي في المراية اللي فوق وحطي R','لفي الدركسيون كله يمين وارجعي بالراحة، وبصي في المرايات الجنب','لما تبقي موازية للخطوط عدلي وكملي لحد آخر المكان، وحطي P'],
   obj:'ادخلي المكان الأصفر بالريفيرس، ومقدمة العربية ناحية الممر.',
   build(B){buildLot(B,-1);B.hint=bayCoach(-1,true);}
 },
 { title:'ركنة قدامي في الموقف', skill:'الركنة العمودية لقدام',
   learn:['تدخلي مكان على الشمال بمقدمة العربية','تاخدي لفة واسعة عشان متخبطيش العربية اللي جنبك','تتأكدي من المرايات وانتي داخلة'],
-  steps:['امشي في الحارة اليمين من الممر عشان تاخدي لفة واسعة، واعملي إشارة شمال (Q)','لما مرايتك توصل لأول خط في المكان، لفي الدركسيون كله شمال','بصي في المراية الشمال (1) وانتي داخلة','عدلي لما تبقي جوه، واقفي قبل الحيطة وحطي P'],
+  steps:['امشي في الحارة اليمين من الممر عشان تاخدي لفة واسعة، واعملي إشارة شمال (Q)','لما مرايتك توصل لأول خط في المكان، لفي الدركسيون كله شمال','بصي في المراية الشمال وانتي داخلة','عدلي لما تبقي جوه، واقفي قبل الحيطة وحطي P'],
   obj:'ادخلي المكان الأصفر اللي على الشمال بمقدمة العربية.',
   build(B){buildLot(B,1);B.hint=bayCoach(1,false);}
 },
@@ -611,12 +626,12 @@ function bayCoach(side,reverse){
     const c=G.car,zc=G.B.lotZc,cz=c.z+Math.cos(c.h)*RC,ang=Math.abs(normA(c.h))/DEG;
     if(G.inGoal&&Math.abs(normA(c.h-Math.PI/2))<8*DEG) return 'جوه المكان ومعدولة. دوسي فرامل وحطي P.';
     if(reverse){
-      if(c.gear!=='R'){ if(cz<zc+4.5) return 'اعملي إشارة يمين (E) وعدي على المكان الأصفر. اقفي لما يبقى المكان ورا مرايتك بحوالي مكانين.'; if(Math.abs(c.v)<.1) return 'بصي في المراية اللي فوق (2)، ودوسي فرامل وحطي R.'; return 'اقفي هنا: فرامل (↓).'; }
-      if(ang<70) return 'لفي الدركسيون كله يمين وارجعي بالراحة. بصي في المراية اليمين (3) وشوفي الخط الأبيض.';
+      if(c.gear!=='R'){ if(cz<zc+4.5) return 'اعملي إشارة يمين (E) وعدي على المكان الأصفر. اقفي لما يبقى المكان ورا مرايتك بحوالي مكانين.'; if(Math.abs(c.v)<.1) return 'بصي في المراية اللي فوق، ودوسي فرامل وحطي R.'; return 'اقفي هنا: فرامل (↓).'; }
+      if(ang<70) return 'لفي الدركسيون كله يمين وارجعي بالراحة. بصي في المراية اليمين وشوفي الخط الأبيض.';
       return 'كده انتي موازية للخطوط. عدلي الدركسيون وكملي رجوع لحد آخر المكان قبل الحيطة.';
     }
     if(cz<zc-3.2) return 'اعملي إشارة شمال (Q) وامشي على يمين الممر عشان تاخدي لفة واسعة.';
-    if(ang<70) return 'لفي الدركسيون كله شمال وادخلي ببطء. بصي في المراية الشمال (1).';
+    if(ang<70) return 'لفي الدركسيون كله شمال وادخلي ببطء. بصي في المراية الشمال.';
     return 'عدلي الدركسيون واتقدمي لحد ما العربية تبقى جوه المكان، واقفي قبل الحيطة.';
   };
 }
@@ -649,13 +664,14 @@ function hwUpdate(G,dt){
     S.siren(st.amb!=='gone',G.time);
     const t=G.time-st.ambT;
     if(!st.sawIt&&G.mirrorT[2]>st.ambT){st.sawIt=true;score(5,'شوفتي الإسعاف في المراية اللي فوق');}
-    if(!st.sawIt&&!st.missed&&t>8){st.missed=true;score(-5,'الإسعاف وراكي ومابصيتيش في المراية اللي فوق (2)');}
+    if(!st.sawIt&&G.mirrorAuto)st.sawIt=true;
+    if(!st.sawIt&&!st.missed&&t>8){st.missed=true;score(-5,'الإسعاف وراكي ومابصيتيش في المراية اللي فوق');}
     const myLane=cx<-3.75?-5.625:-1.875;
     if(st.amb==='coming'||st.amb==='wait'){
       if(A.z>cz-12&&st.amb==='coming')st.amb='wait';
       if(st.lane===-1.875){ // ambulance behind in left lane
         if(myLane===-5.625){score(5,'فسحتي للإسعاف');st.amb='pass';A.lx=-1.875;}
-        else if(t>16&&!st.late){st.late=true;score(-8,'لازم تفسحي للإسعاف: بصي في المراية اليمين (3)، إشارة يمين (E)، وادخلي اليمين');st.amb='pass';A.lx=-1.875;}
+        else if(t>16&&!st.late){st.late=true;score(-8,'لازم تفسحي للإسعاف: بصي في المراية اليمين، إشارة يمين (E)، وادخلي اليمين');st.amb='pass';A.lx=-1.875;}
       } else if(t>4&&(st.sawIt||t>9)){st.amb='pass';A.lx=-1.875;if(myLane===-5.625&&!st.passOK){st.passOK=true;score(2,'خليتي في حارتك والإسعاف عدى');}}
     }
     if(st.amb==='pass'){A.base=31;if(A.z>cz+160){A.on=false;st.amb='gone';S.siren(false);}}
@@ -760,9 +776,9 @@ function physics(dt){
   const c=G.car,k=G.keys;
   const gas=!!(k.ArrowUp||k.KeyW||G.padGas),brk=!!(k.ArrowDown||k.KeyS||k.Space||G.padBrake),lf=!!k.ArrowLeft,rt=!!k.ArrowRight;
   c.gas=gas;c.brake=brk;
-  if(G.padOn&&!lf&&!rt){c.steer+=clamp(G.padS-c.steer,-5*dt,5*dt);c.kbd=c.steer;}
-  else if(G.phoneOn&&!lf&&!rt){c.steer+=clamp(G.phoneS-c.steer,-5*dt,5*dt);c.kbd=c.steer;}
-  else{ if(lf)c.kbd=Math.max(-1,c.kbd-1.5*dt);else if(rt)c.kbd=Math.min(1,c.kbd+1.5*dt);else if(c.v>.5)c.kbd-=Math.sign(c.kbd)*Math.min(Math.abs(c.kbd),.9*dt); c.steer=c.kbd; }
+  if(G.padOn&&!lf&&!rt){c.steer+=clamp(clamp(G.padS*G.sens,-1,1)-c.steer,-5*dt,5*dt);c.kbd=c.steer;}
+  else if(G.phoneOn&&!lf&&!rt){c.steer+=clamp(clamp(G.phoneS*G.sens,-1,1)-c.steer,-5*dt,5*dt);c.kbd=c.steer;}
+  else{ if(lf)c.kbd=Math.max(-1,c.kbd-1.5*G.sens*dt);else if(rt)c.kbd=Math.min(1,c.kbd+1.5*G.sens*dt);else if(c.v>.5)c.kbd-=Math.sign(c.kbd)*Math.min(Math.abs(c.kbd),.9*dt); c.steer=c.kbd; }
   const v=c.v;let a=0;
   if(c.gear==='P'){c.v=0;}
   else if(brk){a=-Math.sign(v)*8;if(Math.abs(v)<=8*dt){c.v=0;a=0;}}
@@ -825,10 +841,10 @@ function rules(dt){
   if(kmh>lim+3){G.overT+=dt;if(G.overT>1&&now-(G.f.spdT||-99)>4){G.f.spdT=now;score(-5,`سرعتك ${Math.round(kmh)} والمسموح ${lim}`);}}else G.overT=0;
   const lastM=Math.max(G.mirrorT[1],G.mirrorT[2],G.mirrorT[3]);
   G.nag=false;
-  if(B.habit&&kmh>12){const gap=now-Math.max(lastM,G.f.moveT||0);if(gap>8)G.nag=true;if(gap>13&&now-(G.f.habT||-99)>12){G.f.habT=now;score(-2,'بقالك كتير مابصيتيش في المرايات');}}
+  if(B.habit&&kmh>12&&!G.mirrorAuto){const gap=now-Math.max(lastM,G.f.moveT||0);if(gap>8)G.nag=true;if(gap>13&&now-(G.f.habT||-99)>12){G.f.habT=now;score(-2,'بقالك كتير مابصيتيش في المرايات');}}
   if(kmh>5&&G.f.moveT==null)G.f.moveT=now;
   // reversing
-  if(c.v<-.2&&!G.revEp){G.revEp=true;if(now-G.mirrorT[2]<7)score(2,'بصيتي ورا قبل ما ترجعي');else score(-5,'رجعتي من غير ما تبصي في المراية اللي فوق (2)');}
+  if(c.v<-.2&&!G.revEp){G.revEp=true;if(G.mirrorAuto){}else if(now-G.mirrorT[2]<7)score(2,'بصيتي ورا قبل ما ترجعي');else score(-5,'رجعتي من غير ما تبصي في المراية اللي فوق');}
   if(c.v>.3)G.revEp=false;
   // line crossings (forward only)
   if(c.v>1){
@@ -840,7 +856,7 @@ function rules(dt){
       const key='ln'+l.at;if(now-(G.f[key]||-99)<2)return;G.f[key]=now;
       const mir=dir==='L'?1:3;let ok=true;
       if(!signalOK(dir)){ok=false;score(-5,`غيرتي مكانك من غير إشارة ${dir==='L'?'شمال (Q)':'يمين (E)'}`);}
-      if(now-G.mirrorT[mir]>6){ok=false;score(-5,`مابصيتيش في المراية ${dir==='L'?'الشمال (1)':'اليمين (3)'} قبل ما تتحركي`);}
+      if(!G.mirrorAuto&&now-G.mirrorT[mir]>6){ok=false;score(-5,`مابصيتيش في المراية ${dir==='L'?'الشمال':'اليمين'} قبل ما تتحركي`);}
       const danger=B.ai.some(o=>o.on&&(dir==='L'?o.x>l.at:o.x<l.at)&&Math.abs(o.x-l.at)<4&&o.z-cc.z>-15&&o.z-cc.z<6);
       if(danger){ok=false;score(-10,'دخلتي قدام عربية جاية في الحارة التانية! المراية كانت هتوريكي');}
       if(ok)score(3,'مراية وإشارة وبعدين اتحركتي، برافو');
@@ -934,7 +950,7 @@ function visuals(dt){
   }
   // mirrors
   const lastM=G.mirrorT;
-  mirrors.forEach((m,i)=>{const k=[1,2,3][i];m.el.classList.toggle('check',G.time-lastM[k]<1.1);m.el.classList.toggle('nag',!!G.nag);});
+  mirrors.forEach((m,i)=>{const k=[1,2,3][i];m.el.classList.toggle('check',!G.mirrorAuto&&ET.look===k);m.el.classList.toggle('nag',!!G.nag);});
 }
 let hudAcc=0;
 function updHUD(force){
@@ -949,13 +965,15 @@ function updHUD(force){
   $('#hScore').textContent=G.score;
   $('#gDot').classList.toggle('on',G.phoneOn||G.padOn);$('#gLink').textContent=G.padOn?'دركسيون Monect متوصل (I يعكس)':G.phoneOn?'التليفون متوصل':(G.peerReady?'امسحي الكود من التليفون':'سوقي بالأسهم ← →');
   $('#camName').textContent=CAMS[G.cam];
+  $('#eyeDot').classList.toggle('on',!G.mirrorAuto);
+  $('#eyeChip').textContent=G.mirrorAuto?(ET.state==='on'&&ET.calib?'مش شايفة وشك، المرايات أوتوماتيك':'المرايات أوتوماتيك'):(ET.look?'بتبصي في المراية':'تتبع العين شغال');
   // hints
   let h='';
   if(c.gear==='P'&&!c.belt)h='البسي الحزام الأول: دوسي B';
   else if(G.B.night&&!c.lights)h='نوري الأنوار: دوسي L';
-  else if(c.gear==='P'&&G.time<60&&!G.f.moveT&&!G.done)h=(G.lvl===0||G.lvl===11)?'بصي في المرايات (1 2 3)، إشارة شمال (Q)، وبعدين دوسي فرامل (↓) وحطي D':'بصي في المرايات (1 2 3)، دوسي فرامل (↓) وحطي D';
+  else if(c.gear==='P'&&G.time<60&&!G.f.moveT&&!G.done)h=(G.lvl===0||G.lvl===11)?'بصي في المرايات، إشارة شمال (Q)، وبعدين دوسي فرامل (↓) وحطي D':'بصي في المرايات، دوسي فرامل (↓) وحطي D';
   else if(G.B.hint){h=G.B.hint(G)||'';}
-  if(!h&&G.nag)h='بصي في المرايات: 1 و2 و3';
+  if(!h&&G.nag)h='بصي في المرايات';
   if(G.done)h='';
   const hi=$('#hint');if(hi.textContent!==h)hi.textContent=h;
 }
@@ -964,10 +982,10 @@ function updHUD(force){
    INPUT
    ========================================================= */
 function glance(k){G.glance={yaw:k===1?.62:k===3?-.95:-.18,pitch:k===2?.22:-.02,until:G.time+.9};}
-function mirrorCheck(k){
+function mirrorCheck(k,fromEye){
   const now=G.time,prev=Math.max(G.mirrorT[1],G.mirrorT[2],G.mirrorT[3]);
-  G.mirrorT[k]=now;if(G.cam==='driver')glance(k);
-  if(G.B&&G.B.habit&&Math.abs(G.car.v)>3&&now-prev>5&&G.habitBonus<10){G.habitBonus++;G.score=Math.min(100,G.score+1);toast('بصة في المراية','good',1);}
+  G.mirrorT[k]=now;if(G.cam==='driver'&&!fromEye)glance(k);
+  if(G.B&&G.B.habit&&!G.mirrorAuto&&Math.abs(G.car.v)>3&&now-prev>5&&G.habitBonus<10){G.habitBonus++;G.score=Math.min(100,G.score+1);toast('بصة في المراية','good',1);}
 }
 function shift(gear){
   const c=G.car;if(c.gear===gear)return;
@@ -1008,7 +1026,8 @@ function loop(t){
   const dt=Math.min(.05,(t-last)/1000||0);last=t;
   if(G.running&&G.B){
     readPhone();
-    if(!G.paused&&!G.done){
+    G.mirrorAuto=!(ET.state==='on'&&ET.calib&&performance.now()-ET.lastFace<2000);
+    if(!G.paused&&!G.done&&!G.calib){
       G.time+=dt;G.pc=G.cc;physics(dt);G.cc=carCenter();
       updateAI(dt);updateLights(dt);if(G.B.update)G.B.update(G,dt);rules(dt);checkGoal();
       S.engine(Math.abs(G.car.v)*3.6,G.car.gas,G.car.gear!=='P'||true);
@@ -1049,11 +1068,13 @@ function startLevel(i){
   S.init();
   $('#ovBrief').hidden=true;$('#ovResult').hidden=true;$('#ovPause').hidden=true;$('#scrMenu').hidden=true;$('#game').hidden=false;
   resize();loadLevel(i);G.running=true;G.paused=false;G.keys={};
+  if(ET.state==='on'&&!ET.calib)setTimeout(etCalibrate,300);
 }
-function togglePause(){G.paused=!G.paused;$('#ovPause').hidden=!G.paused;if(G.paused){G.keys={};S.engine(0,false,false);}}
+function togglePause(){G.paused=!G.paused;$('#ovPause').hidden=!G.paused;$('#eyeCalPause').hidden=ET.state!=='on';if(G.paused){G.keys={};S.engine(0,false,false);}}
 $('#resumeBtn').onclick=()=>togglePause();
 $('#restartBtn').onclick=()=>{startLevel(G.lvl);};
 $('#menuBtn').onclick=showMenu;
+$('#eyeCalPause').onclick=()=>{togglePause();etCalibrate();};
 function showResult(pass){
   const agg={};G.log.forEach(e=>{const k=e.text;if(!agg[k])agg[k]={d:0,n:0,text:k};agg[k].d+=e.d;agg[k].n++;});
   const items=Object.values(agg).sort((a,b)=>a.d-b.d);
@@ -1085,10 +1106,89 @@ function startPeer(){
     if(e&&(e.type==='network'||e.type==='server-error'||e.type==='socket-error'))setLink('مشكلة في الاتصال بالنت، بحاول تاني…');
   });
 }
+/* ---------- eye tracking (webcam) ---------- */
+const ET={state:'off',video:null,lm:null,calib:store.get('eyeCalib',null),feat:null,lastFace:0,cand:0,candN:0,look:0,collect:null};
+const VISION='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
+function etStatus(t,on){$('#eyeStatus').textContent=t;$('#eyeDot2').classList.toggle('on',!!on);}
+function etButtons(){const on=ET.state==='on';$('#eyeBtn').hidden=on;$('#eyeCalBtn').hidden=!on;}
+async function etStart(){
+  if(ET.state==='loading'||ET.state==='on')return;
+  ET.state='loading';etStatus('بيشغل الكاميرا…');
+  try{
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw {name:'NoCamera'};
+    const stream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:640},height:{ideal:480},facingMode:'user'},audio:false});
+    const v=document.createElement('video');v.muted=true;v.playsInline=true;v.srcObject=stream;await v.play();ET.video=v;
+    etStatus('بيحمل تتبع الوش…');
+    const vis=await import(VISION+'/vision_bundle.mjs');
+    const fs=await vis.FilesetResolver.forVisionTasks(VISION+'/wasm');
+    const opts=d=>({baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',delegate:d},runningMode:'VIDEO',numFaces:1,outputFaceBlendshapes:true,outputFacialTransformationMatrixes:true});
+    try{ET.lm=await vis.FaceLandmarker.createFromOptions(fs,opts('GPU'));}catch(e){ET.lm=await vis.FaceLandmarker.createFromOptions(fs,opts('CPU'));}
+    ET.state='on';store.set('eyeOn',true);
+    etStatus(ET.calib?'شغال':'شغال. هنظبطه أول ما تبدئي مستوى',true);etButtons();
+    requestAnimationFrame(etLoop);
+  }catch(e){
+    ET.state='off';store.set('eyeOn',false);
+    try{ET.video&&ET.video.srcObject&&ET.video.srcObject.getTracks().forEach(t=>t.stop());}catch(_){}
+    etStatus(e&&e.name==='NotAllowedError'?'الكاميرا مقفولة. المرايات بتتحسبلك أوتوماتيك':'تتبع العين مشتغلش هنا. المرايات بتتحسبلك أوتوماتيك');etButtons();
+  }
+}
+let etLast=0;
+function etLoop(t){
+  if(ET.state!=='on')return;requestAnimationFrame(etLoop);
+  if(t-etLast<45)return;etLast=t;
+  const v=ET.video;if(!v||v.readyState<2)return;
+  let r;try{r=ET.lm.detectForVideo(v,performance.now());}catch(e){return;}
+  if(!r||!r.faceBlendshapes||!r.faceBlendshapes.length){ET.feat=null;ET.look=0;return;}
+  const bs={};r.faceBlendshapes[0].categories.forEach(c=>bs[c.categoryName]=c.score);
+  let yaw=0,pitch=0;const m=r.facialTransformationMatrixes&&r.facialTransformationMatrixes[0];
+  if(m&&m.data){const d=m.data;yaw=Math.atan2(d[8],d[10]);pitch=Math.asin(clamp(-d[9],-1,1));}
+  const gh=(bs.eyeLookOutLeft||0)+(bs.eyeLookInRight||0)-(bs.eyeLookInLeft||0)-(bs.eyeLookOutRight||0);
+  const gv=(bs.eyeLookUpLeft||0)+(bs.eyeLookUpRight||0)-(bs.eyeLookDownLeft||0)-(bs.eyeLookDownRight||0);
+  const f=[yaw*2.5,pitch*2.5,gh,gv];
+  ET.feat=ET.feat?ET.feat.map((x,i)=>x*.5+f[i]*.5):f;ET.lastFace=performance.now();
+  if(ET.collect){ET.collect.push(ET.feat.slice());return;}
+  if(ET.calib&&G.running&&!G.paused&&!G.done&&!G.calib)etClassify();
+}
+const fdist=(a,b)=>Math.hypot(...a.map((x,i)=>x-b[i]));
+function etClassify(){
+  const c=ET.calib,f=ET.feat;if(!f)return;
+  let best=0,bd=fdist(f,c.c);
+  [1,2,3].forEach(k=>{const d=fdist(f,c[k]);if(d<bd){bd=d;best=k;}});
+  if(best&&bd<0.6*fdist(c[best],c.c)){
+    if(ET.cand===best)ET.candN++;else{ET.cand=best;ET.candN=1;}
+    if(ET.candN>=3){ET.look=best;if(ET.candN===3)mirrorCheck(best,true);else G.mirrorT[best]=G.time;}
+  } else {ET.cand=0;ET.candN=0;ET.look=0;}
+}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function etCalibrate(){
+  if(ET.state!=='on'||G.calib)return;
+  G.calib=true;G.keys={};
+  const steps=[['c','بصي على الطريق قدامك',0],[1,'بصي على المراية الشمال',1],[2,'بصي على المراية اللي فوق',2],[3,'بصي على المراية اليمين',3]];
+  const res={};let ok=true;
+  $('#calib').hidden=false;
+  for(const [key,txt,mk] of steps){
+    $('#calibT').textContent=txt;$('#calibS').textContent='ثبتي عينك عليها لحد ما تختفي العلامة';
+    mirrors.forEach((m,i)=>m.el.classList.toggle('target',mk===i+1));
+    await sleep(1200);ET.collect=[];await sleep(1400);
+    const arr=ET.collect;ET.collect=null;
+    if(arr.length<6){ok=false;break;}
+    res[key]=[0,1,2,3].map(i=>{const v=arr.map(a=>a[i]).sort((x,y)=>x-y);return v[Math.floor(v.length/2)];});
+  }
+  mirrors.forEach(m=>m.el.classList.remove('target'));
+  $('#calib').hidden=true;G.calib=false;
+  if(ok&&[1,2,3].every(k=>fdist(res[k],res.c)>0.12)){ET.calib=res;store.set('eyeCalib',res);etStatus('شغال ومتظبط',true);toast('اتظبط تتبع العين','good');}
+  else{ET.calib=null;store.set('eyeCalib',null);etStatus('معرفتش أظبطه. المرايات بتتحسبلك أوتوماتيك');toast('معرفتش أشوف عينك كويس، المرايات هتتحسبلك أوتوماتيك. تقدري تظبطيها تاني من الوقفة (Esc)','info');}
+}
+$('#eyeBtn').onclick=etStart;
+$('#eyeCalBtn').onclick=()=>{ET.calib=null;store.set('eyeCalib',null);etStatus('هنظبطه أول ما تبدئي مستوى',true);};
+function setSens(v){G.sens=clamp(+v||1,.5,1.6);store.set('sens',G.sens);const t=Math.round(G.sens*100)+'%';['sensMenu','sensPause'].forEach(id=>{$('#'+id).value=G.sens;$('#'+id+'V').textContent=t;});}
+['sensMenu','sensPause'].forEach(id=>$('#'+id).addEventListener('input',e=>setSens(e.target.value)));
+setSens(G.sens);
 function boot(){
   if(!THREEOK){$('#scrMenu').hidden=false;$('#levels').innerHTML='<p class="err">مكتبة الرسم ماتحملتش. جربي تحدثي الصفحة.</p>';return;}
   if(matchMedia('(pointer:coarse)').matches&&innerWidth<820)$('#onPhone').hidden=false;
   initThree();showMenu();startPeer();
+  if(store.get('eyeOn',false)&&navigator.permissions&&navigator.permissions.query){navigator.permissions.query({name:'camera'}).then(p=>{if(p.state==='granted')etStart();},()=>{});}
 }
 boot();
 requestAnimationFrame(loop);
