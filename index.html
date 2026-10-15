@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Alexandria:wght@600;800&display=swap">
 <style>
-@font-face{font-family:'MT Halal';src:url('fonts/MTHALALVF-Normal.otf') format('opentype');font-weight:100 900;font-stretch:50% 200%;font-display:swap}
+@font-face{font-family:'Mars';src:url('fonts/mars.otf') format('opentype');font-display:swap}
 :root{--squeeze:'wdth' 70}
 h1,h2,h3,.lvl .n,.card .t,.verdict,.labPanel b.t,#lvlMenu b,.choice b,.steps b,.sheet h2,h1{font-stretch:70%;font-variation-settings:var(--squeeze)}
 [hidden]{display:none!important}
@@ -15,7 +15,7 @@ h1,h2,h3,.lvl .n,.card .t,.verdict,.labPanel b.t,#lvlMenu b,.choice b,.steps b,.
 :root{
   --asphalt:#17191d; --asphalt-2:#22252b; --asphalt-3:#2d3139;
   --paint:#f1eee6; --muted:#a2a7b0; --kerb:#f2c230; --stop:#d8382c; --go:#3cc07e; --sign:#2f6fd1;
-  --display:'MT Halal','Alexandria','IBM Plex Sans Arabic',Tahoma,sans-serif;
+  --display:'Mars','Alexandria','IBM Plex Sans Arabic',Tahoma,sans-serif;
   --body:'IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;
   color-scheme:dark;
 }
@@ -364,7 +364,7 @@ function makeTextures(){
       x.strokeStyle='#e9e3d4';x.lineWidth=2;for(let i=0;i<=12;i++){const a=Math.PI*.75+i/12*Math.PI*1.5;x.beginPath();x.moveTo(cx+Math.cos(a)*60,cy+Math.sin(a)*60);x.lineTo(cx+Math.cos(a)*70,cy+Math.sin(a)*70);x.stroke();}
       x.fillStyle='#9aa0a8';x.font="16px 'IBM Plex Sans Arabic',Arial";x.textAlign='center';x.fillText(l,cx,cy+40);
       x.strokeStyle='#ff5a3c';x.lineWidth=4;x.beginPath();x.moveTo(cx,cy);const a=Math.PI*.82;x.lineTo(cx+Math.cos(a)*62,cy+Math.sin(a)*62);x.stroke();});});
-  T.learner=canvasTex(256,64,(x,w,h)=>{x.fillStyle='#f2c230';x.fillRect(0,0,w,h);x.fillStyle='#111';x.font="800 38px 'MT Halal','Alexandria','IBM Plex Sans Arabic',sans-serif";x.textAlign='center';x.textBaseline='middle';x.fillText('تعليم سواقة',w/2,h/2+2);});
+  T.learner=canvasTex(256,64,(x,w,h)=>{x.fillStyle='#f2c230';x.fillRect(0,0,w,h);x.fillStyle='#111';x.font="800 38px 'Mars','Alexandria','IBM Plex Sans Arabic',sans-serif";x.textAlign='center';x.textBaseline='middle';x.fillText('تعليم سواقة',w/2,h/2+2);});
 }
 /* geometry helpers */
 function planeGeo(w,d,tile){const g=new THREE.PlaneGeometry(w,d);if(tile){const uv=g.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*w/tile,uv.getY(i)*d/tile);}return g;}
@@ -494,12 +494,12 @@ function buildPalmGeos(){
 /* ---------- renderer, sky, light ---------- */
 function makeSkyMat(){return new THREE.ShaderMaterial({uniforms:{top:{value:new THREE.Color()},hor:{value:new THREE.Color()},bot:{value:new THREE.Color()},sunDir:{value:SUN_DIR.clone()},sunCol:{value:new THREE.Color()}},
   vertexShader:'varying vec3 vW;void main(){vW=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
-  fragmentShader:'uniform vec3 top,hor,bot,sunDir,sunCol;varying vec3 vW;void main(){vec3 d=normalize(vW);float h=d.y;vec3 c=h>0.0?mix(hor,top,pow(clamp(h,0.0,1.0),0.5)):mix(hor,bot,pow(clamp(-h,0.0,1.0),0.35));float s=max(dot(d,sunDir),0.0);c+=sunCol*(pow(s,900.0)*14.0+pow(s,10.0)*0.22);gl_FragColor=vec4(c,1.0);\n#include <tonemapping_fragment>\n#include <encodings_fragment>\n}',
+  fragmentShader:'uniform vec3 top,hor,bot,sunDir,sunCol;varying vec3 vW;void main(){vec3 d=normalize(vW);float h=d.y;vec3 c=h>0.0?mix(hor,top,pow(clamp(h,0.0,1.0),0.28)):mix(hor,bot,pow(clamp(-h,0.0,1.0),0.35));float s=max(dot(d,sunDir),0.0);c+=sunCol*(pow(s,900.0)*14.0+pow(s,10.0)*0.22);gl_FragColor=vec4(c,1.0);\n#include <tonemapping_fragment>\n#include <encodings_fragment>\n}',
   side:THREE.BackSide,depthWrite:false,fog:false});}
 function setSky(night){
   const lin=h=>new THREE.Color(h).convertSRGBToLinear();
   const u=sky.material.uniforms,e=skyEnvScene.children[0].material.uniforms;
-  const vals=night?{top:0x03060f,hor:0x0d1830,bot:0x06070a,sun:0x000000}:{top:0x2f6fbf,hor:0xd4e3ee,bot:0xb39c74,sun:0xfff1d6};
+  const vals=night?{top:0x03060f,hor:0x0d1830,bot:0x06070a,sun:0x000000}:{top:0x2a69bd,hor:0xb9d2ea,bot:0xb39c74,sun:0xfff1d6};
   [u,e].forEach(x=>{x.top.value.copy(lin(vals.top));x.hor.value.copy(lin(vals.hor));x.bot.value.copy(lin(vals.bot));x.sunCol.value.copy(lin(vals.sun));});
   if(envTex)envTex.dispose();envTex=pmrem.fromScene(skyEnvScene,0.04).texture;scene.environment=envTex;
   scene.fog=new THREE.Fog(lin(vals.hor),night?25:140,night?170:640);
@@ -554,9 +554,9 @@ function initThree(){
   player=makeCar(0xf6f6f2,'player');scene.add(player.g);
   // mirrors render into textures and are drawn in an overlay pass
   hud=new THREE.Scene();hudCam=new THREE.OrthographicCamera(0,1,1,0,-1,1);
-  [['mLeft',1.05,-0.2,32],['mRear',0,0,24],['mRight',-1.05,0.2,32]].forEach(([id,x,yaw,fov])=>{
-    const el=$('#'+id);const cam=new THREE.PerspectiveCamera(fov,1.6,0.1,500);
-    if(id==='mRear'){cam.position.set(0,1.32,-0.98);cam.rotation.set(-0.04,0,0);cam.near=0.3;}else{cam.position.set(x,1.12,2.05);cam.rotation.set(-0.05,yaw,0);}
+  [['mLeft',1.05,-0.2,36],['mRear',0,0,30],['mRight',-1.05,0.2,36]].forEach(([id,x,yaw,fov])=>{
+    const el=$('#'+id);const cam=new THREE.PerspectiveCamera(fov,1.6,0.1,1000);
+    if(id==='mRear'){cam.position.set(0,1.32,-0.98);cam.rotation.set(0.04,0,0);cam.near=0.3;}else{cam.position.set(x,1.12,2.05);cam.rotation.set(0.03,yaw,0);}
     player.g.add(cam);
     const rt=new THREE.WebGLRenderTarget(256,128);rt.texture.encoding=THREE.sRGBEncoding;
     const pm=new THREE.MeshBasicMaterial({map:rt.texture,transparent:true,toneMapped:false,side:THREE.DoubleSide,depthTest:false});
@@ -1564,7 +1564,7 @@ setSens(G.sens);
 async function boot(){
   if(!THREEOK){$('#scrMenu').hidden=false;$('#levels').innerHTML='<p class="err">مكتبة الرسم ماتحملتش. جربي تحدثي الصفحة.</p>';return;}
   if(matchMedia('(pointer:coarse)').matches&&innerWidth<820)$('#onPhone').hidden=false;
-  try{await Promise.race([document.fonts.load("800 40px 'MT Halal'"),sleep(1500)]);}catch(e){}
+  try{await Promise.race([document.fonts.load("800 40px 'Mars'"),sleep(1500)]);}catch(e){}
   initThree();qLabel();showMenu();startPeer();
   if(store.get('eyeOn',false)&&navigator.permissions&&navigator.permissions.query){navigator.permissions.query({name:'camera'}).then(p=>{if(p.state==='granted')etStart(true);},()=>{});}
 }
