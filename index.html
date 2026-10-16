@@ -247,6 +247,11 @@ p{margin:0}
     <div class="row" id="labBtns"></div>
   </div>
 </div>
+<div class="overlay" id="ovGL" hidden><div class="sheet">
+  <h2>الصورة وقفت</h2>
+  <p id="glMsg">الجهاز ضغط على الرسوم فوقفها. بنرجعها دلوقتي بجودة أخف، استني ثانية.</p>
+  <div class="row"><button class="btn" id="glReload" hidden>حدثي الصفحة</button></div>
+</div></div>
 <div class="overlay" id="ovResult" hidden><div class="sheet" id="resultSheet"></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -296,7 +301,7 @@ const WB=2.65, RC=1.35, HW=0.9, HD=2.2, MAXS=0.58;
 let THREEOK=typeof THREE!=='undefined';
 let R,scene,camera,mirrors=[],hemi,sun,GEO={},M={},player=null;
 const G={running:false,paused:false,done:false,cam:'driver',lvl:0,B:null,car:null,time:0,score:100,log:[],fail:false,f:{},keys:{},mirrorT:{1:-99,2:-99,3:-99},
-  phoneOn:false,phoneS:0,quality:store.get('quality','high'),sens:store.get('sens',1),mirrorAuto:true,calib:false,peerT:0,peerReady:false,padOn:false,padS:0,padInv:store.get('padInv',false),nr:null,glance:{yaw:0,pitch:0,until:0},yaw:0,pitch:-0.05,contacts:{},shake:0,hintT:0};
+  phoneOn:false,phoneS:0,quality:store.get('quality',((navigator.deviceMemory&&navigator.deviceMemory<=4)||/Android|CrOS|iPad|iPhone|Mobile/.test(navigator.userAgent))?'low':'high'),sens:store.get('sens',1),mirrorAuto:true,calib:false,peerT:0,peerReady:false,padOn:false,padS:0,padInv:store.get('padInv',false),nr:null,glance:{yaw:0,pitch:0,until:0},yaw:0,pitch:-0.05,contacts:{},shake:0,hintT:0};
 
 /* ---------- materials, textures, colour management ---------- */
 const T={};let sky=null,skyEnvScene=null,pmrem=null,envTex=null,hud=null,hudCam=null;
@@ -512,10 +517,12 @@ function applyQuality(){
   sun.castShadow=sh;M.blob.visible=!sh;if(sh&&sun.shadow.mapSize.x!==q.shadow){sun.shadow.mapSize.set(q.shadow,q.shadow);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null;}}
   resize();
 }
-const QUAL={high:{pr:2,shadow:2048,mirrorEvery:1},low:{pr:1,shadow:0,mirrorEvery:2}};
+const QUAL={high:{pr:1.5,shadow:2048,mirrorEvery:1},low:{pr:1,shadow:0,mirrorEvery:2}};
 function initThree(){
   const cv=$('#view');
   R=new THREE.WebGLRenderer({canvas:cv,antialias:true,powerPreference:'high-performance'});
+  cv.addEventListener('webglcontextlost',e=>{e.preventDefault();glLost();},false);
+  cv.addEventListener('webglcontextrestored',glRestored,false);
   R.outputEncoding=THREE.sRGBEncoding;R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=0.95;
   R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;R.shadowMap.autoUpdate=false;
   scene=new THREE.Scene();
@@ -566,6 +573,26 @@ function initThree(){
   applyQuality();
   window.addEventListener('resize',resize);resize();
 }
+const GL={lost:false,timer:0};
+function glLost(){
+  GL.lost=true;G.keys={};
+  if(G.running&&!G.paused&&!G.done)togglePause();
+  $('#ovPause').hidden=true;$('#ovGL').hidden=false;$('#glReload').hidden=true;
+  $('#glMsg').textContent='الجهاز ضغط على الرسوم فوقفها. بنرجعها دلوقتي بجودة أخف، استني ثانية.';
+  try{store.set('resumeLvl',G.running?G.lvl:null);}catch(e){}
+  clearTimeout(GL.timer);
+  GL.timer=setTimeout(()=>{if(GL.lost){$('#glMsg').textContent='الرسوم مارجعتش لوحدها. حدثي الصفحة وهترجعي لنفس المستوى بجودة أخف.';$('#glReload').hidden=false;}},5000);
+  if(G.quality!=='low'){G.quality='low';store.set('quality','low');try{qLabel();}catch(e){}}
+}
+function glRestored(){
+  GL.lost=false;clearTimeout(GL.timer);
+  try{pmrem=new THREE.PMREMGenerator(R);envTex=null;setSky(!!G.skyNight);}catch(e){}
+  R.shadowMap.enabled=!R.shadowMap.enabled;applyQuality();
+  $('#ovGL').hidden=true;store.set('resumeLvl',null);
+  if(G.running&&G.paused){$('#ovPause').hidden=false;}
+  toast('رجعت الرسوم بجودة خفيفة. دوسي كملي','info');
+}
+$('#glReload').onclick=()=>location.reload();
 function roundMask(w,h,r){return canvasTex(w,h,(x)=>{x.clearRect(0,0,w,h);x.fillStyle='#fff';x.beginPath();x.moveTo(r,0);x.arcTo(w,0,w,h,r);x.arcTo(w,h,0,h,r);x.arcTo(0,h,0,0,r);x.arcTo(0,0,w,0,r);x.closePath();x.fill();},false);}
 function resize(){
   if(!R) return;
@@ -1075,6 +1102,7 @@ function physics(dt){
   const d=c.steer*MAXS;
   c.h=normA(c.h-c.v*Math.tan(d)/WB*dt);
   c.x+=c.v*Math.sin(c.h)*dt;c.z+=c.v*Math.cos(c.h)*dt;
+  if(!isFinite(c.x)||!isFinite(c.z)||!isFinite(c.h)||!isFinite(c.v)||!isFinite(c.steer)){c.x=prev.x;c.z=prev.z;c.h=prev.h;c.v=0;c.steer=0;c.kbd=0;return;}
   const hits=collisions(carCenter());
   if(hits.length){c.x=prev.x;c.z=prev.z;c.h=prev.h;c.v=0;onHits(hits);}
   // signal auto-cancel
@@ -1338,7 +1366,7 @@ function loop(t){
     }
     visuals(dt);
     hudAcc+=dt;if(hudAcc>.08){hudAcc=0;updHUD();}
-    renderFrame();
+    if(!GL.lost)renderFrame();
   }
   requestAnimationFrame(loop);
 }
@@ -1566,6 +1594,7 @@ async function boot(){
   if(matchMedia('(pointer:coarse)').matches&&innerWidth<820)$('#onPhone').hidden=false;
   try{await Promise.race([document.fonts.load("800 40px 'Mars'"),sleep(1500)]);}catch(e){}
   initThree();qLabel();showMenu();startPeer();
+  const rl=store.get('resumeLvl',null);if(rl!=null&&LEVELS[rl]){store.set('resumeLvl',null);openBrief(rl);}
   if(store.get('eyeOn',false)&&navigator.permissions&&navigator.permissions.query){navigator.permissions.query({name:'camera'}).then(p=>{if(p.state==='granted')etStart(true);},()=>{});}
 }
 boot();
