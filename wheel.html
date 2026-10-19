@@ -91,8 +91,6 @@ input[type=range]{width:100%;accent-color:var(--kerb);direction:ltr;touch-action
     <button class="k sig wide" id="sigL" data-act="sigL"><svg viewBox="0 0 24 24"><path d="M10 5 3 12l7 7M3 12h18"/></svg>إشارة شمال</button>
     <button class="k sig wide" id="sigR" data-act="sigR"><svg viewBox="0 0 24 24"><path d="M14 5l7 7-7 7M21 12H3"/></svg>إشارة يمين</button>
     <button class="k wide warn" id="beltK" data-act="belt"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><path d="M7 21v-7a5 5 0 0 1 10 0v7M8 10l9 9"/></svg>الحزام</button>
-    <button class="k wide warn" id="hbK" data-act="hb"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M10 8v8M10 8h3a2 2 0 0 1 0 4h-3"/></svg>هاند بريك</button>
-    <button class="k wide warn" id="adjK" data-act="adj"><svg viewBox="0 0 24 24"><path d="M7 20V9a3 3 0 0 1 3-3h1M7 14h8l2 6M14 6h6v4h-6z"/></svg>كرسي ومرايات</button>
     <button class="k" id="lightsK" data-act="lights"><svg viewBox="0 0 24 24"><path d="M10 6c-4 0-6 2.5-6 6s2 6 6 6zM14 8h7M14 12h7M14 16h7"/></svg>أنوار</button>
     <button class="k" id="hornK" data-act="horn"><svg viewBox="0 0 24 24"><path d="M4 10v4h3l6 4V6L7 10zM17 9a4 4 0 0 1 0 6"/></svg>كلاكس</button>
   </div>
@@ -223,8 +221,6 @@ function showState(st){
   document.querySelectorAll('.gear').forEach(b=>b.classList.toggle('on',st.g===b.dataset.g));
   $('#beltK').classList.toggle('on',!!st.b);$('#beltK').classList.toggle('warn',!st.b);
   $('#lightsK').classList.toggle('on',!!st.l);
-  $('#hbK').classList.toggle('warn',!!st.hb);$('#hbK').classList.toggle('on',st.hb===false);
-  $('#adjK').classList.toggle('warn',st.adj===false);$('#adjK').classList.toggle('on',!!st.adj);
   const blink=Math.floor(Date.now()/380)%2===0;
   $('#sigL').classList.toggle('on',st.sg==='L'&&blink);$('#sigR').classList.toggle('on',st.sg==='R'&&blink);
   $('#spd').firstChild.nodeValue=(st.k||0)+' ';
