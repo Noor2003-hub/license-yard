@@ -1,1 +1,1 @@
-حطي هنا ملف الخط باسم MTHALALVF-Normal.otf
+حطي هنا ملف الخط باسم MTHALAL-Static.ttf

@@ -8,12 +8,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Alexandria:wght@600;800&display=swap">
 <style>
-@font-face{font-family:'Mars';src:url('fonts/mars.otf') format('opentype');font-display:swap}
+@font-face{font-family:'MT Halal';src:url('fonts/MTHALAL-Static.ttf') format('truetype');font-display:swap}
 :root{--squeeze:'wdth' 70}
 h1,h2,h3,.lvl .n,.card .t,.verdict,.labPanel b.t,#lvlMenu b,.choice b,.steps b,.sheet h2,h1{font-stretch:70%;font-variation-settings:var(--squeeze)}
 [hidden]{display:none!important}
 :root{--asphalt:#17191d;--asphalt-2:#22252b;--asphalt-3:#2d3139;--paint:#f1eee6;--muted:#a2a7b0;--kerb:#f2c230;--go:#3cc07e;--stop:#d8382c;--sig:#ffa21f;
-  --display:'Mars','Alexandria','IBM Plex Sans Arabic',Tahoma,sans-serif;--body:'IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;color-scheme:dark}
+  --display:'MT Halal','Alexandria','IBM Plex Sans Arabic',Tahoma,sans-serif;--body:'IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;color-scheme:dark}
 html,body{height:100%;margin:0;overflow:hidden;background:var(--asphalt)}
 body{color:var(--paint);font-family:var(--body);font-size:14px;line-height:1.45;overscroll-behavior:none;-webkit-user-select:none;user-select:none;touch-action:none;-webkit-touch-callout:none}
 button{font-family:inherit;cursor:pointer;color:inherit;-webkit-tap-highlight-color:transparent}
@@ -91,6 +91,8 @@ input[type=range]{width:100%;accent-color:var(--kerb);direction:ltr;touch-action
     <button class="k sig wide" id="sigL" data-act="sigL"><svg viewBox="0 0 24 24"><path d="M10 5 3 12l7 7M3 12h18"/></svg>إشارة شمال</button>
     <button class="k sig wide" id="sigR" data-act="sigR"><svg viewBox="0 0 24 24"><path d="M14 5l7 7-7 7M21 12H3"/></svg>إشارة يمين</button>
     <button class="k wide warn" id="beltK" data-act="belt"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><path d="M7 21v-7a5 5 0 0 1 10 0v7M8 10l9 9"/></svg>الحزام</button>
+    <button class="k wide warn" id="hbK" data-act="hb"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M10 8v8M10 8h3a2 2 0 0 1 0 4h-3"/></svg>هاند بريك</button>
+    <button class="k wide warn" id="adjK" data-act="adj"><svg viewBox="0 0 24 24"><path d="M7 20V9a3 3 0 0 1 3-3h1M7 14h8l2 6M14 6h6v4h-6z"/></svg>كرسي ومرايات</button>
     <button class="k" id="lightsK" data-act="lights"><svg viewBox="0 0 24 24"><path d="M10 6c-4 0-6 2.5-6 6s2 6 6 6zM14 8h7M14 12h7M14 16h7"/></svg>أنوار</button>
     <button class="k" id="hornK" data-act="horn"><svg viewBox="0 0 24 24"><path d="M4 10v4h3l6 4V6L7 10zM17 9a4 4 0 0 1 0 6"/></svg>كلاكس</button>
   </div>
@@ -101,7 +103,7 @@ input[type=range]{width:100%;accent-color:var(--kerb);direction:ltr;touch-action
       <rect x="-8" y="-107" width="16" height="22" rx="4" fill="#f2c230"/>
       <path d="M-86 8 L-30 14 L-22 40 L22 40 L30 14 L86 8" fill="none" stroke="#2d3139" stroke-width="18" stroke-linejoin="round"/>
       <circle r="30" fill="#22252b" stroke="#3a3f48" stroke-width="2"/>
-      <text y="7" text-anchor="middle" fill="#a2a7b0" font-size="16" font-family="Mars, Alexandria, sans-serif">تعليم</text>
+      <text y="7" text-anchor="middle" fill="#a2a7b0" font-size="16" font-family="MT Halal, Alexandria, sans-serif">تعليم</text>
     </g>
   </svg>
   </div>
@@ -176,28 +178,44 @@ async function enableTilt(){
 }
 function lockLandscape(){try{const p=screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape');p&&p.catch&&p.catch(()=>{});}catch(e){}}
 function goFull(){try{const el=document.documentElement;const p=el.requestFullscreen&&el.requestFullscreen();if(p&&p.then)p.then(lockLandscape,()=>{});}catch(e){}}
+const PEER_OPTS={debug:0,config:{iceServers:[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302','stun:stun.cloudflare.com:3478']},{urls:['turn:openrelay.metered.ca:80','turn:openrelay.metered.ca:443','turn:openrelay.metered.ca:443?transport=tcp'],username:'openrelayproject',credential:'openrelayproject'}]}};
+const NET_TIP='جربي: ١) التليفون واللابتوب على نفس الواي فاي. ٢) اقفلي الـ VPN أو أي برنامج حجب إعلانات. ٣) حدثي صفحة اللعبة على اللابتوب واكتبي الكود الجديد.';
+let tries=0,openTimer=0;
+function resetPeer(){try{W.conn&&W.conn.close();}catch(e){}W.conn=null;try{W.peer&&W.peer.destroy();}catch(e){}W.peer=null;}
 function connect(){
   const c=$('#code').value.trim();
-  $('#err').textContent='';
+  $('#err').textContent='';clearTimeout(openTimer);
   if(!/^\d{4}$/.test(c)){$('#err').textContent='اكتبي الكود اللي ظاهر على اللابتوب (٤ أرقام).';$('#sheet').hidden=false;return;}
+  if(W.code!==c)tries=0;
   W.code=c;store.set('code',c);
   if(!window.Peer){$('#err').textContent='مكتبة الاتصال ماتحملتش. اتأكدي من النت وحدثي الصفحة.';return;}
-  setLink('بيتوصل…');
+  setLink('بيتصل بالسيرفر…');
+  const retry=(why)=>{
+    clearTimeout(openTimer);tries++;resetPeer();
+    if(tries>=2){$('#err').textContent=why+' '+NET_TIP;}
+    setLink('بحاول تاني…');setTimeout(()=>{if(W.code===c)connect();},tries>=2?3000:800);
+  };
   const go=()=>{
     try{W.conn&&W.conn.close();}catch(e){}
+    setLink('لقيت السيرفر، بفتح الخط مع اللابتوب…');
     const conn=W.peer.connect('lyard-'+c,{reliable:true,serialization:'json'});W.conn=conn;
-    conn.on('open',()=>{setLink('متوصل باللابتوب',true);$('#err').textContent='';});
+    clearTimeout(openTimer);
+    openTimer=setTimeout(()=>{if(W.conn===conn&&!conn.open)retry('الخط مافتحش: الشبكة غالبًا مانعة الاتصال المباشر.');},10000);
+    conn.on('open',()=>{clearTimeout(openTimer);tries=0;setLink('متوصل باللابتوب',true);$('#err').textContent='';});
     conn.on('data',d=>{if(d&&d.st)showState(d.st);});
-    conn.on('close',()=>{setLink('اتفصل، بحاول تاني…');setTimeout(()=>{if(W.conn===conn)go();},1500);});
+    conn.on('close',()=>{if(W.conn!==conn)return;setLink('اتفصل، بحاول تاني…');setTimeout(()=>{if(W.conn===conn)go();},1500);});
     conn.on('error',()=>{});
+    setTimeout(()=>{const pc=conn.peerConnection;if(pc)pc.addEventListener('iceconnectionstatechange',()=>{if(pc.iceConnectionState==='failed'&&W.conn===conn&&!conn.open)retry('الخط مافتحش: الشبكة مانعة الاتصال المباشر.');});},0);
   };
   if(W.peer&&!W.peer.destroyed&&W.peer.open){go();return;}
-  W.peer=new Peer({debug:0});
-  W.peer.on('open',go);
-  W.peer.on('disconnected',()=>{try{W.peer.reconnect();}catch(e){}});
+  resetPeer();
+  W.peer=new Peer(PEER_OPTS);
+  const pt=setTimeout(()=>{if(W.peer&&!W.peer.open)retry('مش قادرة أوصل لسيرفر الربط.');},10000);
+  W.peer.on('open',()=>{clearTimeout(pt);go();});
+  W.peer.on('disconnected',()=>{try{W.peer&&!W.peer.destroyed&&W.peer.reconnect();}catch(e){}});
   W.peer.on('error',e=>{
-    if(e&&e.type==='peer-unavailable'){setLink('مش لاقية اللابتوب');$('#err').textContent='اتأكدي إن صفحة اللعبة مفتوحة على اللابتوب وإن الكود هو نفسه.';setTimeout(()=>{if(W.code===c)go();},3000);}
-    else if(e&&(e.type==='network'||e.type==='server-error'||e.type==='socket-error'))setLink('مشكلة في النت، بحاول تاني…');
+    if(e&&e.type==='peer-unavailable'){clearTimeout(openTimer);setLink('مش لاقية اللابتوب');$('#err').textContent='اتأكدي إن صفحة اللعبة مفتوحة على اللابتوب وإن الكود هو نفس الرقم اللي ظاهر عليها دلوقتي.';setTimeout(()=>{if(W.code===c&&W.peer&&W.peer.open)go();},3000);}
+    else if(e&&(e.type==='network'||e.type==='server-error'||e.type==='socket-error'||e.type==='socket-closed'))setLink('مشكلة في النت، بحاول تاني…');
   });
 }
 /* state coming back from the laptop lights up the buttons */
@@ -205,6 +223,8 @@ function showState(st){
   document.querySelectorAll('.gear').forEach(b=>b.classList.toggle('on',st.g===b.dataset.g));
   $('#beltK').classList.toggle('on',!!st.b);$('#beltK').classList.toggle('warn',!st.b);
   $('#lightsK').classList.toggle('on',!!st.l);
+  $('#hbK').classList.toggle('warn',!!st.hb);$('#hbK').classList.toggle('on',st.hb===false);
+  $('#adjK').classList.toggle('warn',st.adj===false);$('#adjK').classList.toggle('on',!!st.adj);
   const blink=Math.floor(Date.now()/380)%2===0;
   $('#sigL').classList.toggle('on',st.sg==='L'&&blink);$('#sigR').classList.toggle('on',st.sg==='R'&&blink);
   $('#spd').firstChild.nodeValue=(st.k||0)+' ';
@@ -219,7 +239,7 @@ function showState(st){
 const ACT={
   gear:(el)=>send({ev:'gear',g:el.dataset.g}),
   sigL:()=>send({ev:'sig',d:'L'}),sigR:()=>send({ev:'sig',d:'R'}),
-  belt:()=>send({ev:'belt'}),lights:()=>send({ev:'lights'})
+  belt:()=>send({ev:'belt'}),lights:()=>send({ev:'lights'}),hb:()=>send({ev:'hb'}),adj:()=>send({ev:'adj'})
 };
 const HOLD={
   gas:[()=>{W.gas=true;},()=>{W.gas=false;}],

@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Alexandria:wght@600;800&display=swap">
 <style>
-@font-face{font-family:'Mars';src:url('fonts/mars.otf') format('opentype');font-display:swap}
+@font-face{font-family:'MT Halal';src:url('fonts/MTHALAL-Static.ttf') format('truetype');font-display:swap}
 :root{--squeeze:'wdth' 70}
 h1,h2,h3,.lvl .n,.card .t,.verdict,.labPanel b.t,#lvlMenu b,.choice b,.steps b,.sheet h2,h1{font-stretch:70%;font-variation-settings:var(--squeeze)}
 [hidden]{display:none!important}
@@ -15,7 +15,7 @@ h1,h2,h3,.lvl .n,.card .t,.verdict,.labPanel b.t,#lvlMenu b,.choice b,.steps b,.
 :root{
   --asphalt:#17191d; --asphalt-2:#22252b; --asphalt-3:#2d3139;
   --paint:#f1eee6; --muted:#a2a7b0; --kerb:#f2c230; --stop:#d8382c; --go:#3cc07e; --sign:#2f6fd1;
-  --display:'Mars','Alexandria','IBM Plex Sans Arabic',Tahoma,sans-serif;
+  --display:'MT Halal','Alexandria','IBM Plex Sans Arabic',Tahoma,sans-serif;
   --body:'IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;
   color-scheme:dark;
 }
@@ -201,7 +201,7 @@ p{margin:0}
   <div class="mirror" id="mRear"></div>
   <div class="mirror" id="mLeft"></div>
   <div class="mirror" id="mRight"></div>
-  <div class="card"><div class="t" id="hTitle"></div><div class="o" id="hObj"></div><div class="sc"><b id="hScore">100</b><span>من ١٠٠ · النجاح ٨٠</span></div></div>
+  <div class="card"><div class="t" id="hTitle"></div><div class="o" id="hObj"></div><div class="sc"><b id="hScore">100</b><span id="passTxt">من ١٠٠ · النجاح ٨٠</span></div></div>
   <div class="lvlCtl" id="lvlCtl">
     <button class="ctl" id="cPause" title="وقفة (Esc)"><svg viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></svg><span>وقفة</span></button>
     <button class="ctl" id="cRestart" title="إعادة المستوى"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4"/></svg><span>إعادة</span></button>
@@ -223,6 +223,7 @@ p{margin:0}
     <div class="gears" id="gears"><span>P</span><span>R</span><span>N</span><span>D</span></div>
     <div class="spd" id="spd"><b id="spdN">0</b><small>كم/س</small></div>
     <div class="lim" id="lim">45</div>
+    <div class="ico warn" id="iHB"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M10 8v8M10 8h3a2 2 0 0 1 0 4h-3"/></svg>هاند</div>
     <div class="ico" id="iLights"><svg viewBox="0 0 24 24"><path d="M10 6c-4 0-6 2.5-6 6s2 6 6 6zM14 8h7M14 12h7M14 16h7"/></svg>أنوار</div>
     <svg class="arrow" id="aR" viewBox="0 0 24 24"><path d="M14 5l7 7-7 7v-4H3V9h11z"/></svg>
   </div>
@@ -270,7 +271,7 @@ const arNum=n=>String(n);
 let code=store.get('code',null);
 if(!code||!/^\d{4}$/.test(code)){code=String(1000+Math.floor(Math.random()*9000));store.set('code',code);}
 /* ---------- keys reference ---------- */
-const KEYS=[['↑','بنزين'],['↓ أو Space','فرامل'],['← →','دركسيون احتياطي'],['D R N P','الفتيس'],['Q','إشارة شمال'],['E','إشارة يمين'],['B','الحزام'],['L','الأنوار'],['H','الكلاكس'],['V','تغيير الكاميرا'],['Esc','وقفة']];
+const KEYS=[['A','ظبط الكرسي والمرايات'],['G','الهاند بريك'],['↑','بنزين'],['↓ أو Space','فرامل'],['← →','دركسيون احتياطي'],['D R N P','الفتيس'],['Q','إشارة شمال'],['E','إشارة يمين'],['B','الحزام'],['L','الأنوار'],['H','الكلاكس'],['V','تغيير الكاميرا'],['Esc','وقفة']];
 function keysHTML(){return KEYS.map(k=>`<div>${k[0].split(' ').map(x=>x==='أو'?'أو':`<kbd>${x}</kbd>`).join(' ')}<span>${k[1]}</span></div>`).join('');}
 $('#keysGrid').innerHTML=keysHTML();
 $('#keysPanel').innerHTML=KEYS.map(k=>`<span>${k[0].split(' ').map(x=>x==='أو'?'':`<kbd>${x}</kbd>`).join(' ')}</span><span>${k[1]}</span>`).join('');
@@ -369,7 +370,7 @@ function makeTextures(){
       x.strokeStyle='#e9e3d4';x.lineWidth=2;for(let i=0;i<=12;i++){const a=Math.PI*.75+i/12*Math.PI*1.5;x.beginPath();x.moveTo(cx+Math.cos(a)*60,cy+Math.sin(a)*60);x.lineTo(cx+Math.cos(a)*70,cy+Math.sin(a)*70);x.stroke();}
       x.fillStyle='#9aa0a8';x.font="16px 'IBM Plex Sans Arabic',Arial";x.textAlign='center';x.fillText(l,cx,cy+40);
       x.strokeStyle='#ff5a3c';x.lineWidth=4;x.beginPath();x.moveTo(cx,cy);const a=Math.PI*.82;x.lineTo(cx+Math.cos(a)*62,cy+Math.sin(a)*62);x.stroke();});});
-  T.learner=canvasTex(256,64,(x,w,h)=>{x.fillStyle='#f2c230';x.fillRect(0,0,w,h);x.fillStyle='#111';x.font="800 38px 'Mars','Alexandria','IBM Plex Sans Arabic',sans-serif";x.textAlign='center';x.textBaseline='middle';x.fillText('تعليم سواقة',w/2,h/2+2);});
+  T.learner=canvasTex(256,64,(x,w,h)=>{x.fillStyle='#f2c230';x.fillRect(0,0,w,h);x.fillStyle='#111';x.font="800 38px 'MT Halal','Alexandria','IBM Plex Sans Arabic',sans-serif";x.textAlign='center';x.textBaseline='middle';x.fillText('تعليم سواقة',w/2,h/2+2);});
 }
 /* geometry helpers */
 function planeGeo(w,d,tile){const g=new THREE.PlaneGeometry(w,d);if(tile){const uv=g.attributes.uv;for(let i=0;i<uv.count;i++)uv.setXY(i,uv.getX(i)*w/tile,uv.getY(i)*d/tile);}return g;}
@@ -664,6 +665,13 @@ function signTex(type,val){
     else if(type==='oneway'){x.fillStyle='#1f5fc4';x.fillRect(10,40,236,176);x.fillStyle='#fff';x.beginPath();x.moveTo(128,56);x.lineTo(176,110);x.lineTo(144,110);x.lineTo(144,150);x.lineTo(112,150);x.lineTo(112,110);x.lineTo(80,110);x.closePath();x.fill();x.font=`700 34px ${F}`;x.fillText('اتجاه واحد',128,186);}
     else if(type==='school'){x.beginPath();x.moveTo(128,10);x.lineTo(248,226);x.lineTo(8,226);x.closePath();x.fillStyle='#c8231b';x.fill();x.beginPath();x.moveTo(128,52);x.lineTo(212,204);x.lineTo(44,204);x.closePath();x.fillStyle='#fff';x.fill();x.fillStyle='#111';x.font=`700 40px ${F}`;x.fillText('مدرسة',128,158);}
     else if(type==='works'){x.beginPath();x.moveTo(128,10);x.lineTo(248,226);x.lineTo(8,226);x.closePath();x.fillStyle='#c8231b';x.fill();x.beginPath();x.moveTo(128,52);x.lineTo(212,204);x.lineTo(44,204);x.closePath();x.fillStyle='#f2c230';x.fill();x.fillStyle='#111';x.font=`700 30px ${F}`;x.fillText('أعمال',128,140);x.fillText('طرق',128,176);}
+    else if(type==='ped'){x.fillStyle='#1f5fc4';x.fillRect(16,16,224,224);x.beginPath();x.moveTo(128,34);x.lineTo(224,206);x.lineTo(32,206);x.closePath();x.fillStyle='#fff';x.fill();
+      x.strokeStyle='#111';x.fillStyle='#111';x.lineWidth=11;x.lineCap='round';x.beginPath();x.arc(132,86,11,0,7);x.fill();
+      x.beginPath();x.moveTo(128,102);x.lineTo(120,146);x.lineTo(102,184);x.moveTo(120,146);x.lineTo(146,182);x.moveTo(126,114);x.lineTo(104,134);x.moveTo(126,114);x.lineTo(150,132);x.stroke();
+      x.fillStyle='#fff';for(let i=0;i<4;i++)x.fillRect(60+i*36,214,22,10);}
+    else if(type==='disabled'){x.fillStyle='#1f5fc4';x.fillRect(16,16,224,224);x.strokeStyle='#fff';x.fillStyle='#fff';x.lineWidth=14;x.lineCap='round';
+      x.beginPath();x.arc(128,56,16,0,7);x.fill();x.beginPath();x.moveTo(122,80);x.lineTo(116,140);x.lineTo(168,140);x.lineTo(184,188);x.stroke();
+      x.beginPath();x.moveTo(118,104);x.lineTo(158,104);x.stroke();x.lineWidth=12;x.beginPath();x.arc(118,168,40,-.4,Math.PI*1.35);x.stroke();}
     else if(type==='park'){x.fillStyle='#1f5fc4';x.fillRect(20,20,216,216);x.fillStyle='#fff';x.font=`700 150px ${F}`;x.fillText('P',128,138);}
   });
 }
@@ -721,9 +729,10 @@ function street(B,z0,z1,o){
   road(B,-W,W,z0,z1);
   curbZ(B,-W-.15,z0,z1,gaps);curbZ(B,W+.15,z0,z1,gaps);
   solidZ(B,-4,z0,z1,gaps);solidZ(B,4,z0,z1,gaps);
-  if(o.oneway){dashZ(B,0,z0,z1,gaps);B.lines.push({kind:'lane',at:0,z0,z1});B.lines.push({kind:'lane',at:4,z0,z1});}
-  else{dashZ(B,-.18,z0,z1,gaps,M.yellow);dashZ(B,.18,z0,z1,gaps,M.yellow);B.lines.push({kind:'center',at:0,z0,z1});}
-  B.lines.push({kind:'lane',at:-4,z0,z1});
+  const sg=segs(z0,z1,gaps);
+  if(o.oneway){dashZ(B,0,z0,z1,gaps);sg.forEach(([a,b])=>{B.lines.push({kind:'lane',at:0,z0:a,z1:b});B.lines.push({kind:'lane',at:4,z0:a,z1:b});});}
+  else{dashZ(B,-.18,z0,z1,gaps,M.yellow);dashZ(B,.18,z0,z1,gaps,M.yellow);sg.forEach(([a,b])=>B.lines.push({kind:'center',at:0,z0:a,z1:b}));}
+  sg.forEach(([a,b])=>B.lines.push({kind:'lane',at:-4,z0:a,z1:b}));
   sideScenery(B,z0,z1,W+.3,{skip:gaps});
   if(o.lamps){for(let z=z0+10;z<z1;z+=32)lamp(B,-W-.9,z,true);}
 }
@@ -743,7 +752,7 @@ function aiLine(B,x0,z0,x1,z1,spd,delay,tag){
   const a={kind:'line',car:c,x0,z0,x1,z1,len,h,t:0,v:spd,base:spd,wait:delay||0,x:x0,z:z0,hw:HW,hd:HD,on:true,tag,gate:null};
   B.ai.push(a);return a;
 }
-function stopLine(B,z,x0,x1){flat(B,x0,x1,z-.25,z+.25,M.white,.024);}
+function stopLine(B,z,x0,x1,m){flat(B,x0,x1,z-.25,z+.25,m||M.white,.024);}
 function yieldLine(B,z,x0,x1){for(let x=x0;x<x1-.2;x+=1)flat(B,x,Math.min(x+.6,x1),z-.15,z+.15,M.white,.024);}
 function trafficLight(B,x,z,line,face){
   const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=face;
@@ -868,7 +877,7 @@ const LEVELS=[
   steps:['اعملي إشارة يمين (E) واقفي جنب العربية اللي قدام المكان، المرايات قصاد بعض','بصي في المراية اللي فوق، دوسي فرامل وحطي R','ارجعي على طول لحد ما الكرسي اللي ورا يبقى قصاد شنطة العربية اللي جنبك','لفي الدركسيون كله يمين وارجعي بالراحة لحد ما تميلي ٤٥ درجة','عدلي وكملي رجوع، وبعدين لفي كله شمال لحد ما تتعدلي','حطي P. لو حبيتي تشوفي من فوق دوسي V'],
   obj:'اركني بين العربيتين جنب الرصيف اليمين، من غير ما تخبطي.',
   build(B){street(B,-20,170);[24,31,40].forEach(z=>parked(B,-5.25,z));parked(B,-5.25,51.6);parked(B,-5.25,60);parked(B,-5.25,68);
-    outline(B,-6.45,-4.05,42.4,49.2,M.yellow);B.goal={type:'park',x0:-6.5,x1:-4.0,z0:42.2,z1:49.4,h:0,tol:8*DEG};
+    outline(B,-6.45,-4.05,42.4,49.2,M.yellow);B.goal={type:'park',x0:-6.5,x1:-4.0,z0:42.2,z1:49.4,h:0,tol:8*DEG,curbX:-6.5};
     B.zones.push({kind:'sigzone',x0:-4,x1:0,z0:44,z1:58,dir:'R'});B.start={x:-2,z:0,h:0};B.limit=30;B.hint=parallelCoach(-1,51.6,49.4);}
 },
 { title:'ركنة جنب — شمال', skill:'الركنة الموازية',
@@ -876,7 +885,7 @@ const LEVELS=[
   steps:['امشي في الحارة الشمال واعملي إشارة شمال (Q)','اقفي جنب العربية اللي قدام المكان، بصي في المراية اللي فوق وحطي R','ارجعي على طول، وبعدين لفي كله شمال لحد ٤٥ درجة','عدلي وكملي، وبعدين لفي كله يمين لحد ما تتعدلي، وحطي P'],
   obj:'اركني بين العربيتين جنب الرصيف الشمال.',
   build(B){street(B,-20,170,{oneway:true});sign(B,'oneway',-7.6,8,0);sign(B,'oneway',7.6,8,0);[24,31,40].forEach(z=>parked(B,5.25,z));parked(B,5.25,51.6);parked(B,5.25,60);parked(B,5.25,68);parked(B,-5.25,36);parked(B,-5.25,56);
-    outline(B,4.05,6.45,42.4,49.2,M.yellow);B.goal={type:'park',x0:4.0,x1:6.5,z0:42.2,z1:49.4,h:0,tol:8*DEG};
+    outline(B,4.05,6.45,42.4,49.2,M.yellow);B.goal={type:'park',x0:4.0,x1:6.5,z0:42.2,z1:49.4,h:0,tol:8*DEG,curbX:6.5};
     B.zones.push({kind:'sigzone',x0:0,x1:4,z0:44,z1:58,dir:'L'});B.start={x:2,z:0,h:0};B.limit=30;B.hint=parallelCoach(1,51.6,49.4);}
 },
 { title:'ركنة ريفيرس في الموقف', skill:'الركنة العمودية بالريفيرس',
@@ -908,11 +917,352 @@ const LEVELS=[
     sign(B,'speed',-7.6,22,0,45);sign(B,'stop',-7.6,72.6,0);stopLine(B,73.6,-6.5,0);B.zones.push({kind:'stop',line:73.6,x0:-6.5,x1:.5});
     const L=trafficLight(B,-7.6,173.6,173.6,0);stopLine(B,173.6,-6.5,0);a.forEach(x=>x.gate=L);
     [250,258].forEach(z=>parked(B,-5.25,z));parked(B,-5.25,265);parked(B,-5.25,276.8);parked(B,-5.25,285);
-    outline(B,-6.45,-4.05,267.4,274.4,M.yellow);B.goal={type:'park',x0:-6.5,x1:-4.0,z0:267.2,z1:274.6,h:0,tol:8*DEG};
+    outline(B,-6.45,-4.05,267.4,274.4,M.yellow);B.goal={type:'park',x0:-6.5,x1:-4.0,z0:267.2,z1:274.6,h:0,tol:8*DEG,curbX:-6.5};
     B.zones.push({kind:'sigzone',x0:-4,x1:0,z0:268,z1:283,dir:'R'});
     B.start={x:-5.25,z:0,h:0};B.limit=45;B.hint=G=>G.car.z>230?parallelCoach(-1,276.8,274.6)(G):null;}
 }
 ];
+/* =========================================================
+   KUWAIT TEST YARD: sensor lines, poles, pedestrians, bridge, tight-turn box, forbidden bays
+   ========================================================= */
+// examiners sometimes make the bay a little shorter
+function narrow(B,z1){const cut=Math.random()<.5?0:.25+Math.random()*.4;if(cut>0)B.narrowed=true;return z1-cut;}
+function nearGoal(){const g=G.B.goal;if(!g||g.type!=='park')return false;const gx=(g.x0+g.x1)/2,gz=(g.z0+g.z1)/2;return (G.cc.x-gx)**2+(G.cc.z-gz)**2<14*14;}
+function lazyMat(k,c,o){return M[k]||(M[k]=mat(c,o));}
+/* ground line with sensors: painted red/white, touching it costs points but does not stop the car */
+function sensorLine(B,xa,za,xb,zb){
+  const red=lazyMat('sensR',0xc8302a,{roughness:.6}),wht=lazyMat('sensW',0xf1eee6,{roughness:.6});
+  const len=Math.hypot(xb-xa,zb-za),n=Math.max(1,Math.round(len/.6)),alongZ=Math.abs(zb-za)>=Math.abs(xb-xa);
+  for(let i=0;i<n;i++){const t0=i/n,t1=(i+1)/n;const x0=xa+(xb-xa)*t0,x1=xa+(xb-xa)*t1,z0=za+(zb-za)*t0,z1=za+(zb-za)*t1;
+    if(alongZ)flat(B,x0-.12,x0+.12,Math.min(z0,z1),Math.max(z0,z1),i%2?wht:red,.027);else flat(B,Math.min(x0,x1),Math.max(x0,x1),z0-.12,z0+.12,i%2?wht:red,.027);}
+  (B.sensors=B.sensors||[]).push({x:(xa+xb)/2,z:(za+zb)/2,hw:alongZ?.12:len/2,hd:alongZ?len/2:.12,h:0});
+}
+function sensorRect(B,x0,x1,z0,z1,skip){
+  skip=skip||{};
+  if(!skip.s)sensorLine(B,x0,z0,x1,z0);if(!skip.n)sensorLine(B,x0,z1,x1,z1);
+  if(!skip.w)sensorLine(B,x0,z0,x0,z1);if(!skip.e)sensorLine(B,x1,z0,x1,z1);
+}
+/* striped barrier pole */
+function post(B,x,z){
+  const y=lazyMat('postY',0xf2c230,{roughness:.5}),k=lazyMat('postK',0x17181a,{roughness:.5});
+  const g=new THREE.Group();g.position.set(x,0,z);
+  GEO.post=GEO.post||shared(new THREE.CylinderGeometry(.065,.065,.25,14));
+  for(let i=0;i<4;i++){const m=new THREE.Mesh(GEO.post,i%2?k:y);m.position.y=.14+i*.25;m.castShadow=true;g.add(m);}
+  const base=new THREE.Mesh(GEO.box,k);base.scale.set(.3,.04,.3);base.position.y=.02;g.add(base);
+  B.group.add(g);B.statics.push({x,z,hw:.09,hd:.09,h:0,type:'post'});
+}
+/* yard road: asphalt with sensor lines instead of kerbs */
+function yardRoad(B,z0,z1,o){
+  o=o||{};const W=6.6,gaps=o.gaps||[];
+  road(B,-W,W,z0,z1,M.lot);
+  segs(z0,z1,gaps).forEach(([a,b])=>{sensorLine(B,-W,a,-W,b);sensorLine(B,W,a,W,b);});
+  const sg=segs(z0,o.centerEnd!=null?o.centerEnd:z1,gaps);
+  if(o.oneway){dashZ(B,0,z0,z1,gaps);sg.forEach(([a,b])=>B.lines.push({kind:'lane',at:0,z0:a,z1:b}));}
+  else{solidZ(B,-.12,z0,z1,gaps,M.yellow,.06);solidZ(B,.12,z0,z1,gaps,M.yellow,.06);sg.forEach(([a,b])=>B.lines.push({kind:'center',at:0,z0:a,z1:b}));}
+  for(let z=z0+10;z<z1;z+=34+B.rng()*14){if(gaps.some(([a,b])=>z>a-12&&z<b+12))continue;palm(B,-W-6-B.rng()*4,z);palm(B,W+6+B.rng()*4,z+12);}
+  for(let z=z0;z<z1;z+=60){if(gaps.some(([a,b])=>z>a-20&&z<b+20))continue;const s=B.rng()<.5?-1:1;building(B,12,4+B.rng()*3,14,s*(W+22),z);}
+}
+/* parallel-parking bay marked with poles and sensor lines, as in the test yard.
+   side -1: right edge (x<0, facing +z); side +1: right edge when driving back (x>0, facing -z) */
+function poleBay(B,side,z0,z1){
+  const xo=side<0?-6.6:6.6,xi=side<0?-4.1:4.1;
+  [z0,z1].forEach(z=>{post(B,xo+(side<0?-.25:.25),z);post(B,xi,z);});
+  // the "parked cars" in front of and behind the bay are marked areas with sensor outlines
+  [[z0-5.2,z0-.5],[z1+.5,z1+5.2]].forEach(([a,b])=>{sensorRect(B,Math.min(xo,xi),Math.max(xo,xi),a,b,side<0?{w:true}:{e:true});post(B,xi,a);post(B,xi,b);});
+  outline(B,Math.min(xo,xi)+.05,Math.max(xo,xi)-.05,z0+.1,z1-.1,M.yellow);
+}
+/* pedestrians */
+function makePed(B,shirt){
+  const skin=lazyMat('skin',0xc89a76,{roughness:.8}),pants=lazyMat('pants',0x2b2f38,{roughness:.8});
+  const sh=mat(shirt,{roughness:.8});B.mats.push(sh);
+  const g=new THREE.Group();
+  const limb=(m,w,h,x,y)=>{const p=new THREE.Group();p.position.set(x,y,0);const o=new THREE.Mesh(GEO.box,m);o.scale.set(w,h,w);o.position.y=-h/2;o.castShadow=true;p.add(o);g.add(p);return p;};
+  const legL=limb(pants,.16,.85,.11,.88),legR=limb(pants,.16,.85,-.11,.88);
+  const body=new THREE.Mesh(GEO.box,sh);body.scale.set(.42,.62,.24);body.position.y=1.2;body.castShadow=true;g.add(body);
+  const armL=limb(sh,.11,.62,.27,1.5),armR=limb(sh,.11,.62,-.27,1.5);
+  const head=new THREE.Mesh(GEO.sph,skin);head.scale.setScalar(1.25);head.position.y=1.68;head.castShadow=true;g.add(head);
+  B.group.add(g);return {g,legL,legR,armL,armR};
+}
+function pedestrian(B,zc,fromX,toX,triggerDist,delay){
+  const P=makePed(B,[0x3c6fd1,0xd8382c,0x2e8a57,0xe8e4da][(B.rng()*4)|0]);
+  const p={P,x:fromX,z:zc+(B.rng()-.5)*1.2,from:fromX,to:toX,dir:Math.sign(toX-fromX),v:1.25,state:'wait',trig:triggerDist,zc,delay:delay||0,t:0};
+  P.g.position.set(p.x,0,p.z);P.g.rotation.y=p.dir>0?Math.PI/2:-Math.PI/2;
+  (B.peds=B.peds||[]).push(p);return p;
+}
+function updatePeds(dt){
+  (G.B.peds||[]).forEach(p=>{
+    if(p.state==='wait'){if(fzOf(G.cc)>p.zc-p.trig){p.delay-=dt;if(p.delay<=0)p.state='walk';}return;}
+    if(p.state!=='walk')return;
+    const nx=p.x+p.dir*p.v*dt;
+    if(obbHit(G.cc,{x:nx+p.dir*.6,z:p.z,hw:.35,hd:.35,h:0})){p.P.legL.rotation.x=p.P.legR.rotation.x=0;return;} // waits for the car
+    p.x=nx;p.t+=dt;const s=Math.sin(p.t*7.5)*.55;
+    p.P.legL.rotation.x=s;p.P.legR.rotation.x=-s;p.P.armL.rotation.x=-s*.7;p.P.armR.rotation.x=s*.7;
+    p.P.g.position.set(p.x,0,p.z);
+    if((p.dir>0&&p.x>p.to)||(p.dir<0&&p.x<p.to)){p.state='done';}
+  });
+}
+function fzOf(cc){return cc.z+Math.cos(cc.h)*HD;}
+function zebra(B,zc,x0,x1){for(let x=x0+.2;x<x1-.3;x+=1.05)flat(B,x,x+.55,zc-2,zc+2,M.white,.023);}
+/* flashing amber light: never changes */
+function flashLight(B,x,z){const L=trafficLight(B,x,z,-1e9,0);L.flash=true;L.state='flash';return L;}
+/* bridge / ramp with real height */
+function heightAt(x,z){const B=G.B;if(!B||!B.ramps)return 0;for(const r of B.ramps){if(x<r.x0-.5||x>r.x1+.5||z<=r.z0||z>=r.z3)continue;if(z<r.z1)return r.H*(z-r.z0)/(r.z1-r.z0);if(z<=r.z2)return r.H;return r.H*(r.z3-z)/(r.z3-r.z2);}return 0;}
+function slopeOf(cc){const s=Math.sin(cc.h),c=Math.cos(cc.h);return (heightAt(cc.x+s*1.3,cc.z+c*1.3)-heightAt(cc.x-s*1.3,cc.z-c*1.3))/2.6;}
+function quad(B,m,pts,uvTile){
+  const g=new THREE.BufferGeometry(),pos=[],uv=[];pts.forEach(p=>{pos.push(p[0],p[1],p[2]);uv.push(uvTile?p[0]/uvTile:0,uvTile?p[2]/uvTile:0);});
+  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex([0,2,1,0,3,2]);g.computeVertexNormals();
+  const o=new THREE.Mesh(g,m);o.receiveShadow=true;o.castShadow=true;B.group.add(o);return o;
+}
+function bridge(B,x0,x1,z0,z1,z2,z3,H){
+  (B.ramps=B.ramps||[]).push({x0,x1,z0,z1,z2,z3,H});
+  const conc=lazyMat('conc',0xcfc6b4,{roughness:.9,side:THREE.DoubleSide}),y=.03;
+  const segsZ=[[z0,z1,0,H],[z1,z2,H,H],[z2,z3,H,0]];
+  segsZ.forEach(([za,zb,ya,yb])=>{
+    quad(B,M.asphalt,[[x0,ya+y,za],[x1,ya+y,za],[x1,yb+y,zb],[x0,yb+y,zb]],11);
+    [x0,x1].forEach(x=>{quad(B,conc,x===x0?[[x,0,za],[x,ya,za],[x,yb,zb],[x,0,zb]]:[[x,0,zb],[x,yb,zb],[x,ya,za],[x,0,za]]);
+      const [g,mx]=seg([x,ya+.5,za],[x,yb+.5,zb],[.35,.85]);const w=new THREE.Mesh(g,conc);w.applyMatrix4(mx);w.castShadow=true;w.receiveShadow=true;B.group.add(w);});
+    // painted lines follow the slope
+    [-.12,.12].forEach(xc=>quad(B,M.yellow,[[xc-.06,ya+y+.01,za],[xc+.06,ya+y+.01,za],[xc+.06,yb+y+.01,zb],[xc-.06,yb+y+.01,zb]]));
+    [x0+.35,x1-.35].forEach(xc=>quad(B,M.white,[[xc-.07,ya+y+.01,za],[xc+.07,ya+y+.01,za],[xc+.07,yb+y+.01,zb],[xc-.07,yb+y+.01,zb]]));
+  });
+  [x0,x1].forEach(x=>B.statics.push({x:x+(x<0?-.05:.05),z:(z0+z3)/2,hw:.2,hd:(z3-z0)/2,h:0,type:'wall'}));
+}
+function rampStopLine(B,z,x0,x1){const a=heightAt((x0+x1)/2,z-.25)+.045,b=heightAt((x0+x1)/2,z+.25)+.045;quad(B,M.white,[[x0,a,z-.25],[x1,a,z-.25],[x1,b,z+.25],[x0,b,z+.25]]);}
+/* small roundabout centred on the course */
+function smallRound(B,zc,R0,R1){
+  const ring=new THREE.Mesh(new THREE.RingGeometry(R0-.4,R1,64),M.asphalt);ring.rotation.x=-Math.PI/2;ring.position.set(0,.016,zc);ring.receiveShadow=true;B.group.add(ring);
+  const isl=new THREE.Mesh(new THREE.CylinderGeometry(R0,R0,.22,48),M.yellow);isl.position.set(0,.11,zc);B.group.add(isl);
+  const top=new THREE.Mesh(new THREE.CircleGeometry(R0-.15,48),M.grass);top.rotation.x=-Math.PI/2;top.position.set(0,.225,zc);B.group.add(top);palm(B,0,zc);
+  B.circles.push({x:0,z:zc,r:R0,type:'island'});
+  const ol=new THREE.Mesh(new THREE.RingGeometry(R1-.2,R1,64),M.white);ol.rotation.x=-Math.PI/2;ol.position.set(0,.024,zc);B.group.add(ol);
+  B.drivable.push({ring:{x:0,z:zc,r0:R0,r1:R1+.3}});
+  yieldLine(B,zc-R1+.2,-6.5,0);sign(B,'round',-7.6,zc-R1-14,0);sign(B,'yield',-7.6,zc-R1-1.5,0);
+  B.roundYield={z:zc-R1+.2,x0:-6.6,x1:.5};
+  const c=makeCar(PALETTE[(B.rng()*PALETTE.length)|0],false);B.group.add(c.g);
+  B.ai.push({kind:'ring',car:c,cx:0,cz:zc,r:(R0+R1)/2,phi:1.2,v:6,base:6,x:0,z:0,h:0,hw:HW,hd:HD,on:true});
+  B.zones.push({kind:'sigline',line:zc+R1,x0:-6.6,x1:.5,dir:'R',msgOk:'إشارة يمين قبل الخروج من الدوار',msgBad:'خرجتي من الدوار من غير إشارة يمين'});
+}
+/* bays that are not allowed */
+function bayTex(kind){
+  return canvasTex(256,256,(x,w,h)=>{
+    x.clearRect(0,0,w,h);const F="'IBM Plex Sans Arabic',Tahoma,sans-serif";x.textAlign='center';x.textBaseline='middle';
+    if(kind==='disabled'){x.fillStyle='#1f5fc4';x.fillRect(0,0,w,h);x.strokeStyle='#fff';x.fillStyle='#fff';x.lineWidth=14;x.lineCap='round';
+      x.beginPath();x.arc(128,52,16,0,7);x.fill();x.beginPath();x.moveTo(122,78);x.lineTo(116,140);x.lineTo(170,140);x.lineTo(186,190);x.stroke();
+      x.beginPath();x.moveTo(118,104);x.lineTo(160,104);x.stroke();x.lineWidth=12;x.beginPath();x.arc(118,170,42,-.4,Math.PI*1.35);x.stroke();}
+    else if(kind==='amb'){x.strokeStyle='#d8382c';x.lineWidth=10;x.strokeRect(14,14,w-28,h-28);x.fillStyle='#d8382c';x.fillRect(110,40,36,96);x.fillRect(80,70,96,36);x.font=`700 54px ${F}`;x.fillText('إسعاف',128,188);}
+    else if(kind==='bus'){x.strokeStyle='#f2c230';x.lineWidth=10;x.strokeRect(14,14,w-28,h-28);x.fillStyle='#f2c230';x.font=`700 70px ${F}`;x.fillText('باص',128,128);}
+    else if(kind==='ok'){x.fillStyle='#f1eee6';x.font=`700 150px ${F}`;x.fillText('P',128,136);}
+  });
+}
+function bayDecal(B,kind,x,z,w,d){const t=bayTex(kind);B.tex.push(t);const m=mat(0xffffff,{map:t,transparent:true,depthWrite:false,roughness:.7});B.mats.push(m);
+  const o=new THREE.Mesh(GEO.plane,m);o.rotation.order='YXZ';o.rotation.y=Math.PI/2;o.rotation.x=-Math.PI/2;o.scale.set(d,w,1);o.position.set(x,.026,z);o.receiveShadow=true;B.group.add(o);}
+/* coaching for parallel parking between poles (wording for poles instead of cars) */
+function poleCoach(side,frontZ,gapZ1){
+  return G=>{
+    const c=G.car,ang=(side<0?c.h:-c.h)/DEG,cz=c.z+Math.cos(c.h)*RC;
+    if(c.gear!=='R'){
+      if(G.inGoal&&Math.abs(ang)<8) return 'اتعدلتي! لو محتاجة تتسنتري اتقدمي سنة، وبعدين دوسي فرامل وحطي P.';
+      if(cz<frontZ-1.2) return `امشي لحد ما مرايتك تبقى قصاد العمود اللي قدام المكان، وسيبي حوالي نص متر بينك وبين الخط. واعملي إشارة ${PP(side)}.`;
+      if(Math.abs(c.v)<.1) return 'تمام كده. بصي في المراية اللي فوق، ودوسي فرامل وحطي R.';
+      return 'اقفي هنا: دوسي فرامل.';
+    }
+    if(ang<4&&c.z>gapZ1-0.4) return 'ارجعي على طول ببطء والدركسيون معدول، لحد ما الكرسي اللي ورا يبقى قصاد العمود اللي جنبك.';
+    if(ang<38) return `لفي الدركسيون كله ${PP(side)} وارجعي بالراحة لحد ما العربية تميل حوالي ٤٥ درجة. بصي في المراية ${side<0?'اليمين':'الشمال'} وشوفي العمود اللي ورا.`;
+    const fz=cz+Math.cos(c.h)*HD;
+    if(fz>gapZ1+0.1) return 'كده الزاوية مظبوطة. عدلي الدركسيون وكملي رجوع لحد ما مقدمة عربيتك تعدي العمود اللي قدام.';
+    return `دلوقتي لفي الدركسيون كله ${side<0?'شمال':'يمين'} وكملي رجوع لحد ما تتعدلي مع الخط، من غير ما تلمسي الخط الأحمر.`;
+  };
+}
+function hillHint(G){const z=(G.B.zones||[]).find(z=>z.kind==='hill');if(!z||!z.cmdOn||z.over)return null;
+  if(z.go)return 'الفاحص: اتحركي. شيلي رجلك من الفرامل وادوسي بنزين على طول عشان العربية ماترجعش.';
+  return 'الفاحص: اقفي هنا على المطلع. دوسي فرامل لحد ما العربية تقف خالص.';}
+function headTurned(dir){return G.mirrorAuto||ET.yaw0==null||G.time-((G.headT||{})[dir]||-99)<5;}
+function headCollect(z){if(G.mirrorAuto||ET.yaw0==null)return;const d=ET.yaw-ET.yaw0;if(d>.22)z.lookA=true;if(d<-.22)z.lookB=true;}
+function headJudge(z,where){if(G.mirrorAuto||ET.yaw0==null)return;if(z.lookA&&z.lookB)score(2,`حركتي راسك يمين وشمال بوضوح ${where}`);else score(-3,`حركي راسك يمين وشمال بوضوح ${where}، الفاحص بيبص على حركة راسك`);}
+function zebraHint(G,zc){
+  const fz=fzOf(G.cc);if(fz>zc+2||fz<zc-40)return null;
+  const threat=(G.B.peds||[]).some(p=>p.state==='walk'&&Math.abs(p.zc-zc)<1&&p.x>-7.5&&p.x<1.5);
+  if(threat)return 'فيه حد بيعدي على الممر: اقفي قبل الخطوط البيضا واستنيه لحد ما يعدي حارتك.';
+  if(Math.abs(G.car.v)<.1&&fz>zc-12)return 'الممر فاضي. الأصفر الوامض مش هيتغير، فبصي يمين وشمال واتحركي بالراحة.';
+  return 'أصفر وامض وممر مشاة: هدي تحت ٢٥ وبصي يمين وشمال. لو فيه حد على الممر اقفي، لو فاضي عدي بالراحة.';
+}
+const KW_LEVELS=[
+{ title:'ركنة بالحواجز — يمين', skill:'ساحة الاختبار', tag:'اختبار الكويت',
+  learn:['الركنة بالجنب زي ساحة الاختبار: أعمدة وخطوط على الأرض بدل العربيات والرصيف','الخطوط الحمرا والبيضا فيها حساسات: لو لمستيها بيتخصم منك','الأعمدة بتحدد المكان: لو خبطتي فيها بيتخصم أكتر'],
+  steps:['إشارة يمين، وامشي لحد ما مرايتك تبقى قصاد العمود اللي قدام المكان','بصي في المراية اللي فوق، فرامل، وحطي R','ارجعي على طول لحد ما الكرسي اللي ورا يبقى قصاد العمود','لفي كله يمين لحد ٤٥ درجة، وبعدين عدلي، وبعدين لفي كله شمال','اتعدلي جوه المكان من غير ما تلمسي الخط الأحمر، وحطي P'],
+  obj:'اركني بين الأعمدة جنب الخط اليمين من غير ما تلمسي الخطوط أو الأعمدة.',
+  build(B){yardRoad(B,-20,140);const z1=narrow(B,49.6);poleBay(B,-1,42.2,z1);
+    B.goal={type:'park',x0:-6.6,x1:-4.1,z0:42.2,z1,h:0,tol:8*DEG,curbX:-6.6};B.strictPark=true;
+    B.zones.push({kind:'sigzone',x0:-4,x1:0,z0:44,z1:58,dir:'R'});B.start={x:-2,z:0,h:0};B.limit=20;B.hint=poleCoach(-1,z1+2.8,z1);}
+},
+{ title:'ركنة بالحواجز — شمال', skill:'ساحة الاختبار', tag:'اختبار الكويت',
+  learn:['نفس ركنة الساحة بس على الشمال في طريق اتجاه واحد','المراية الشمال هي أهم مراية هنا','الدركسيون بيتعكس: الأول شمال وبعدين يمين'],
+  steps:['امشي على الشمال وإشارة شمال','اقفي لما مرايتك تبقى قصاد العمود اللي قدام المكان','R، وارجعي على طول، وبعدين لفي كله شمال لحد ٤٥ درجة','عدلي، وبعدين لفي كله يمين لحد ما تتعدلي، وحطي P'],
+  obj:'اركني بين الأعمدة جنب الخط الشمال من غير ما تلمسي الخطوط أو الأعمدة.',
+  build(B){yardRoad(B,-20,140,{oneway:true});sign(B,'oneway',-7.8,8,0);
+    const xo=6.6,xi=4.1,z0=42.2,z1=narrow(B,49.6);B.strictPark=true;[z0,z1].forEach(z=>{post(B,xo+.25,z);post(B,xi,z);});
+    [[z0-5.2,z0-.5],[z1+.5,z1+5.2]].forEach(([a,b])=>{sensorRect(B,xi,xo,a,b,{e:true});post(B,xi,a);post(B,xi,b);});
+    outline(B,xi+.05,xo-.05,z0+.1,z1-.1,M.yellow);
+    B.goal={type:'park',x0:4.1,x1:6.6,z0,z1,h:0,tol:8*DEG,curbX:6.6};
+    B.zones.push({kind:'sigzone',x0:0,x1:4,z0:44,z1:58,dir:'L'});B.start={x:2,z:0,h:0};B.limit=20;B.hint=poleCoach(1,z1+2.8,z1);}
+},
+{ title:'الأصفر الوامض وممر المشاة', skill:'المشاة', tag:'اختبار الكويت',
+  learn:['الإشارة الصفرا اللي بتنور وتطفي مش بتتغير لأحمر ولا لأخضر: معناها هدي وخدي بالك','عند ممر المشاة الأولوية للي ماشي: لو حد على الممر لازم تقفي','لو الممر فاضي ماتستنيش كتير: هدي، بصي، وعدي بالراحة'],
+  steps:['هدي تحت ٢٥ وانتي قربتي من الممر','لو حد بيعدي، اقفي قبل الخطوط البيضا لحد ما يعدي حارتك','لو الممر فاضي، بصي يمين وشمال وعدي بالراحة من غير ما تقفي كتير','عند الممر التاني اعملي نفس الحاجة، واركني في الآخر'],
+  obj:'ادي أولوية للمشاة عند الأصفر الوامض، وعدي لما الممر يفضى.',
+  build(B){street(B,-30,280);
+    [[80,true],[170,false]].forEach(([zc,withPed])=>{zebra(B,zc,-6.5,6.5);stopLine(B,zc-2.6,-6.5,0);sign(B,'ped',-7.6,zc-5,0);flashLight(B,-7.6,zc-3.2);
+      B.zones.push({kind:'zebra',zc,line:zc-2.4,x0:-6.6,x1:.5});
+      if(withPed){pedestrian(B,zc,-8.5,9,26,0);pedestrian(B,zc,-9.2,9,26,2.6);}});
+    B.start={x:-2,z:0,h:0};B.limit=45;pulloverGoal(B,240,250);
+    B.hint=G=>zebraHint(G,80)||zebraHint(G,170);}
+},
+{ title:'الكوبري والوقفة على المطلع', skill:'المطالع', tag:'اختبار الكويت',
+  learn:['تطلعي الكوبري، والفاحص هيقولك اقفي في نص المطلع','تتحركي تاني من غير ما العربية ترجع لورا','تنزلي بسرعة هادية'],
+  steps:['اطلعي الكوبري بسرعة هادية','لما الفاحص يقول اقفي، اقفي على طول وانتي على المطلع','استني لحد ما يقول اتحركي','وانتي متحركة تاني: شيلي رجلك من الفرامل وادوسي بنزين على طول عشان العربية ماترجعش','انزلي بالراحة واركني في الآخر'],
+  obj:'اقفي على المطلع وكملي من غير ما العربية ترجع لورا.',
+  build(B){street(B,-30,260,{gaps:[[36,128]]});bridge(B,-6.6,6.6,40,72,92,124,3.6);
+    B.zones.push({kind:'hill',cmd:54,by:66,x0:-6.6,x1:.5});B.start={x:-2,z:0,h:0};B.limit=30;pulloverGoal(B,200,210);
+    B.hint=G=>hillHint(G);}
+},
+{ title:'الدوران في مساحة محدودة', skill:'يوتيرن', tag:'اختبار الكويت',
+  learn:['في الاختبار الحقيقي ده عليه ٣٠ درجة من ١٠٠','تلفي العربية وترجعي في الاتجاه العكسي جوه مربع محدد بخطوط حساسات','مسموح تستخدمي الريفيرس، بس من غير ما تلمسي الخطوط'],
+  steps:['ادخلي المربع ببطء على اليمين، وإشارة شمال','لفي الدركسيون كله شمال واتقدمي لحد ما تقربي من الخط اللي قدام، واقفي','حطي R، لفي كله يمين وارجعي لحد ما تقربي من الخط اللي ورا','حطي D، لفي كله شمال واطلعي على الحارة اليمين في الاتجاه العكسي'],
+  obj:'لفي جوه المربع من غير ما تلمسي الخطوط، واطلعي في الاتجاه العكسي.',
+  build(B){
+    road(B,-3.6,3.6,-50,20,M.lot);sensorLine(B,-3.6,-50,-3.6,20);sensorLine(B,3.6,-50,3.6,20);
+    solidZ(B,-.12,-50,20,null,M.yellow,.06);solidZ(B,.12,-50,20,null,M.yellow,.06);B.lines.push({kind:'center',at:0,z0:-50,z1:16});
+    road(B,-4.6,4.6,20,33,M.lot);sensorLine(B,-4.6,20,-4.6,33);sensorLine(B,4.6,20,4.6,33);sensorLine(B,-4.6,33,4.6,33);
+    sensorLine(B,-4.6,20,-3.6,20);sensorLine(B,3.6,20,4.6,20);
+    [[-5,20],[5,20],[-5,33.4],[5,33.4],[0,33.4]].forEach(([x,z])=>post(B,x,z));
+    box(B,M.wall,12,1,.4,0,.5,36);B.statics.push({x:0,z:36,hw:6,hd:.2,h:0,type:'wall'});
+    for(let z=-45;z<30;z+=16){palm(B,-11,z);palm(B,11,z+8);}
+    B.uturn={x0:-4.6,x1:4.6,z0:20,z1:33};B.start={x:-1.8,z:-35,h:0};B.limit=15;B.habit=false;
+    B.goal={type:'reachBack',z:6,x0:0,x1:3.6};
+    B.hint=G=>{const c=G.car,cc=G.cc,a=Math.abs(normA(c.h))/DEG;
+      if(a>150)return cc.z>8?'كده اتعدلتي. اطلعي من المربع على الحارة اليمين.':null;
+      if(cc.z<17&&a<20)return 'ادخلي المربع ببطء على اليمين، واعملي إشارة شمال.';
+      if(c.gear==='D'&&a<100)return 'لفي الدركسيون كله شمال واتقدمي ببطء. اقفي قبل ما توصلي للخط اللي قدام.';
+      if(c.gear!=='R')return 'اقفي، حطي R، ولفي الدركسيون كله يمين وارجعي بالراحة.';
+      return 'ارجعي لحد ما تقربي من الخط اللي ورا، اقفي، وبعدين D ولفي كله شمال.';};}
+},
+{ title:'أماكن الوقوف الممنوعة', skill:'الوقوف', tag:'اختبار الكويت',
+  learn:['في ساحة الاختبار فيه أماكن لذوي الإعاقة والإسعاف والباصات','الوقوف في أي مكان منهم بيسقطك على طول','تختاري المكان المسموح بس'],
+  steps:['امشي في الممر ببطء واقري الأماكن اللي على اليمين','عدي على الأماكن الزرقا (ذوي الإعاقة) والحمرا (إسعاف) والصفرا (باص)','اعملي إشارة يمين وادخلي المكان اللي مكتوب فيه P بمقدمة العربية','اقفي جوه المكان وحطي P'],
+  obj:'اركني في المكان المسموح بس، ومتقفيش في مكان ممنوع.',
+  build(B){
+    const z0=-30,z1=90;road(B,-3.5,3.5,z0,z1);curbZ(B,3.65,z0,z1);curbZ(B,-3.65,z0,10);curbZ(B,-3.65,66,z1);
+    road(B,-9,-3.5,10,66,M.lot);for(let k=0;k<=20;k++){const z=10+k*2.8;flat(B,-8.8,-3.5,z-.06,z+.06,M.white,.024);}
+    box(B,M.wall,.4,1,58,-9.3,.5,38);B.statics.push({x:-9.3,z:38,hw:.2,hd:29,h:0,type:'wall'});
+    const kinds={4:'disabled',5:'amb',6:'bus',7:'bus',8:'ok',9:'disabled',12:'amb'},labels={disabled:'مكان ذوي الإعاقة',amb:'مكان الإسعاف',bus:'مكان الباصات'};
+    B.forbid=[];
+    for(let k=0;k<20;k++){const zc=10+(k+.5)*2.8,kind=kinds[k];
+      if(kind){bayDecal(B,kind,-6.25,zc,2.6,5.3);if(kind==='disabled')sign(B,'disabled',-9.0,zc,-Math.PI/2,null,1.6);
+        if(kind!=='ok')B.forbid.push({x0:-9,x1:-3.5,z0:zc-1.4,z1:zc+1.4,label:labels[kind],t:0});}
+      else parked(B,-6.25,zc,(B.rng()<.5?1:-1)*Math.PI/2);}
+    for(let k=0;k<20;k++){const zc=10+(k+.5)*2.8;if(B.rng()<.85)parked(B,6.25+.0,zc,(B.rng()<.5?1:-1)*Math.PI/2);}
+    road(B,3.5,9,10,66,M.lot);box(B,M.wall,.4,1,58,9.3,.5,38);B.statics.push({x:9.3,z:38,hw:.2,hd:29,h:0,type:'wall'});
+    const zc=10+8.5*2.8;B.goal={type:'park',x0:-9,x1:-3.5,z0:zc-1.4,z1:zc+1.4,h:-Math.PI/2,tol:10*DEG};
+    B.zones.push({kind:'sigzone',x0:-3.5,x1:3.5,z0:zc-12,z1:zc+1,dir:'R'});
+    B.start={x:1.6,z:-15,h:0};B.limit=20;B.habit=false;
+    B.hint=G=>{const cc=G.cc,c=G.car;if(G.inGoal)return 'جوه المكان المسموح. فرامل وحطي P.';
+      if(cc.z<zc-6)return 'امشي ببطء واقري الأماكن. الزرقا لذوي الإعاقة، الحمرا للإسعاف، الصفرا للباص. دوري على P.';
+      if(Math.abs(normA(c.h))<.5)return 'اعملي إشارة يمين، ولما مرايتك توصل لأول خط المكان اللي فيه P لفي الدركسيون كله يمين.';
+      return 'عدلي الدركسيون لما تبقي جوه، واقفي قبل الحيطة.';};}
+},
+{ title:'محاكاة اختبار مرور الكويت', skill:'الاختبار الكامل', tag:'اختبار الكويت',
+  learn:['ساحة شبه الاختبار الحقيقي: قف كذا مرة، دوار صغير، أصفر وامض ومشاة، كوبري، إشارة حمرا، دوران في مساحة محدودة، وركنة بالحواجز','في الاختبار الحقيقي الدرجات: الحزام ١٠، الانتباه ١٠، الركنة بالجنب ١٠، الوقوف عند الأحمر ٣٠، الدوران في مساحة محدودة ٣٠، استخدام الجير ١٠','النجاح من ٧٥. قطع الأحمر أو أي حادثة أو الوقوف في مكان ممنوع = راسب'],
+  steps:['حزام، مرايات، إشارة شمال، واطلعي','٣ علامات قف: وقفة كاملة ٣ ثواني قبل الخط الأصفر عند كل واحدة','الدوار: الأولوية للي جوه، وإشارة يمين قبل الخروج','الأصفر الوامض: هدي وادي أولوية للمشاة، وعدي لما يفضى','الكوبري: لما الفاحص يقول اقفي، اقفي على المطلع، وكملي من غير ما ترجعي','الإشارة: استني الأخضر','في الآخر لفي جوه المربع، وارجعي واركني بين الأعمدة على يمينك وحطي P'],
+  obj:'عدي الاختبار كله بـ٧٥ أو أكتر من غير غلطة تسقطك.',
+  build(B){
+    const gaps=[[44,56],[84,96],[124,158],[166,178],[205,305],[334,346]];
+    yardRoad(B,-20,420,{gaps,centerEnd:410});
+    crossRoad(B,50);stopLine(B,43.6,-6.6,0,M.yellow);sign(B,'stop',-7.8,42.6,0);B.zones.push({kind:'stop',line:43.6,x0:-6.6,x1:.5});
+    crossRoad(B,90,{delay:2});stopLine(B,83.6,-6.6,0,M.yellow);sign(B,'stop',-7.8,82.6,0);B.zones.push({kind:'stop',line:83.6,x0:-6.6,x1:.5});
+    smallRound(B,141,4.5,11);
+    crossRoad(B,172,{delay:4});stopLine(B,165.6,-6.6,0,M.yellow);sign(B,'stop',-7.8,164.6,0);B.zones.push({kind:'stop',line:165.6,x0:-6.6,x1:.5});
+    zebra(B,190,-6.6,6.6);stopLine(B,187.4,-6.6,0);sign(B,'ped',-7.8,185,0);flashLight(B,-7.8,186.8);
+    B.zones.push({kind:'zebra',zc:190,line:187.6,x0:-6.6,x1:.5});pedestrian(B,190,-8.6,9,24,.4);
+    bridge(B,-6.6,6.6,212,244,262,294,3.4);B.zones.push({kind:'hill',cmd:226,by:238,x0:-6.6,x1:.5});
+    const a=crossRoad(B,340);const L=trafficLight(B,-7.8,333.6,333.6,0);stopLine(B,333.6,-6.6,0);a.forEach(x=>x.gate=L);L.trigDist=36;
+    // tight-turn box at the end of the course
+    road(B,-4.6,4.6,420,433,M.lot);sensorLine(B,-4.6,420,-4.6,433);sensorLine(B,4.6,420,4.6,433);sensorLine(B,-4.6,433,4.6,433);
+    [[-5,420],[5,420],[-5,433.4],[5,433.4]].forEach(([x,z])=>post(B,x,z));box(B,M.wall,12,1,.4,0,.5,436);B.statics.push({x:0,z:436,hw:6,hd:.2,h:0,type:'wall'});
+    B.uturn={x0:-4.6,x1:4.6,z0:420,z1:433};
+    const pz0=383+(7.4-(narrow(B,390.4)-383));poleBay(B,1,pz0,390.4);
+    B.goal={type:'park',x0:4.1,x1:6.6,z0:pz0,z1:390.4,h:Math.PI,tol:9*DEG,curbX:6.6};B.strictPark=true;
+    B.start={x:-5.3,z:0,h:0};B.limit=30;B.pass=75;B.exam=true;
+    B.hint=G=>{const cc=G.cc,c=G.car,back=Math.abs(normA(c.h))>Math.PI/2;
+      if(!back){const zh=zebraHint(G,190)||hillHint(G);if(zh)return zh;
+        if(cc.z>420)return c.gear==='R'?'ارجعي بالراحة لحد ما تقربي من الخط اللي ورا، وبعدين D ولفي كله شمال.':'لفي جوه المربع: كله شمال لحد قرب الخط، وبعدين R وكله يمين، وبعدين D.';
+        if(cc.z>395)return 'كملي على طول لحد المربع اللي في الآخر، ولفي جواه من غير ما تلمسي الخطوط.';return null;}
+      if(cc.z>396)return 'ارجعي على الحارة اليمين. المكان بين الأعمدة على يمينك قدام.';
+      if(G.inGoal)return 'اتعدلي وحطي P.';
+      return c.gear==='R'?'ارجعي على طول، وبعدين لفي كله يمين لحد ٤٥ درجة، وبعدين عدلي، وبعدين كله شمال لحد ما تتعدلي.':'إشارة يمين، واقفي لما مرايتك تبقى قصاد العمود اللي قدام المكان، وبعدين R.';};}
+}
+];
+
+/* ---------- more yard pieces: white sensor lines at any angle, shaded parking, S and L lanes ---------- */
+function sensorSeg(B,xa,za,xb,zb){
+  const len=Math.hypot(xb-xa,zb-za),h=Math.atan2(xb-xa,zb-za);
+  const o=new THREE.Mesh(GEO.plane,M.white);o.rotation.order='YXZ';o.rotation.y=h;o.rotation.x=-Math.PI/2;o.scale.set(.16,len+.08,1);o.position.set((xa+xb)/2,.027,(za+zb)/2);o.receiveShadow=true;B.group.add(o);
+  (B.sensors=B.sensors||[]).push({x:(xa+xb)/2,z:(za+zb)/2,hw:.08,hd:len/2,h});
+}
+function laneFromPath(B,pts,halfW){
+  const L=[],Rr=[];
+  for(let i=0;i<pts.length;i++){
+    const a=pts[Math.max(0,i-1)],b=pts[Math.min(pts.length-1,i+1)];
+    let dx=b[0]-a[0],dz=b[1]-a[1];const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;
+    L.push([pts[i][0]-dz*halfW,pts[i][1]+dx*halfW]);Rr.push([pts[i][0]+dz*halfW,pts[i][1]-dx*halfW]);
+  }
+  for(let i=0;i<pts.length-1;i++){sensorSeg(B,L[i][0],L[i][1],L[i+1][0],L[i+1][1]);sensorSeg(B,Rr[i][0],Rr[i][1],Rr[i+1][0],Rr[i+1][1]);}
+  // asphalt under the lane
+  for(let i=0;i<pts.length-1;i++){const [xa,za]=pts[i],[xb,zb]=pts[i+1];const len=Math.hypot(xb-xa,zb-za),h=Math.atan2(xb-xa,zb-za);
+    const o=new THREE.Mesh(GEO.plane,M.lot);o.rotation.order='YXZ';o.rotation.y=h;o.rotation.x=-Math.PI/2;o.scale.set(halfW*2+1.4,len+1.2,1);o.position.set((xa+xb)/2,.012+i*1e-5,(za+zb)/2);o.receiveShadow=true;B.group.add(o);}
+}
+function sPath(){
+  const pts=[];
+  for(let z=-25;z<=0;z+=2.5)pts.push([-2,z]);
+  for(let z=2;z<=72;z+=2)pts.push([-2+4.2*Math.sin(Math.PI*z/36),z]);
+  for(let z=74;z<=84;z+=2)pts.push([-2,z]);
+  const R=7,cx=-2+R,cz=84;for(let a=1;a<=10;a++){const t=Math.PI-a/10*Math.PI/2;pts.push([cx+R*Math.cos(t),cz+R*Math.sin(t)]);}
+  for(let x=cx+2;x<=cx+24;x+=2.5)pts.push([x,cz+R]);
+  return pts;
+}
+function canopy(B,x0,x1,z0,z1,h){
+  const fabric=lazyMat('fabric',0x2f5d55,{roughness:.9,side:THREE.DoubleSide});
+  const roof=new THREE.Mesh(GEO.box,fabric);roof.scale.set(x1-x0,.06,z1-z0);roof.position.set((x0+x1)/2,h,(z0+z1)/2);roof.rotation.z=(x0<0?1:-1)*.06;roof.castShadow=true;B.group.add(roof);
+  for(let z=z0+.3;z<=z1;z+=8.4){[x0+.3].forEach(x=>{const p=new THREE.Mesh(GEO.pole,M.pole);p.scale.set(2.2,h,2.2);p.position.set(x,h/2,z);p.castShadow=true;B.group.add(p);B.statics.push({x,z,hw:.12,hd:.12,h:0,type:'pole'});});}
+}
+
+KW_LEVELS.splice(5,0,
+{ title:'الباركنج المظلل', skill:'الركنة العرضية', tag:'اختبار الكويت',
+  learn:['تدخلي مكان تحت المظلة بالريفيرس بين خطين بيض فيهم حساسات','متلمسيش الخطوط ولا الرصيف اللي في آخر المكان','تبصي في المرايات الجنب عشان تشوفي الخطوط'],
+  steps:['امشي في الممر ببطء وإشارة يمين','عدي المكان اللي فيه P واقفي لما يبقى ورا مرايتك بحوالي مكانين','R، ولفي كله يمين وارجعي بالراحة وانتي باصة في المراية اليمين','لما تبقي موازية للخطوط عدلي وارجعي لحد قبل الرصيف، وحطي P'],
+  obj:'ادخلي المكان المظلل بالريفيرس من غير ما تلمسي الخطوط أو الرصيف.',
+  build(B){
+    road(B,-3.5,3.5,-30,80,M.lot);curbZ(B,3.65,-30,80);curbZ(B,-3.65,-30,8);curbZ(B,-3.65,58,80);
+    road(B,-9,-3.5,8,58,M.lot);curbZ(B,-9.15,8,58);
+    for(let k=0;k<=18;k++){const z=8+k*2.8;sensorSeg(B,-8.9,z,-3.7,z);}
+    canopy(B,-9.6,-4.2,7.6,58.4,3.1);
+    const T=8;for(let k=0;k<18;k++){if(k===T)continue;if(Math.abs(k-T)===1||B.rng()<.55)parked(B,-6.3,8+(k+.5)*2.8,Math.PI/2*(B.rng()<.5?1:-1));}
+    const zc=8+(T+.5)*2.8;decal(B,'P',-6.3,zc,1.6,1.6,Math.PI/2);
+    for(let z=-20;z<70;z+=14)palm(B,8,z);
+    B.goal={type:'park',x0:-9,x1:-3.5,z0:zc-1.4,z1:zc+1.4,h:Math.PI/2,tol:8*DEG};B.strictPark=true;
+    B.zones.push({kind:'sigzone',x0:-3.5,x1:3.5,z0:zc-12,z1:zc+2,dir:'R'});
+    B.start={x:1.6,z:-15,h:0};B.limit=20;B.habit=false;B.lotZc=zc;B.hint=bayCoach(-1,true);}
+},
+{ title:'المنعطفات: حرف S و L', skill:'التحكم في الدركسيون', tag:'اختبار الكويت',
+  learn:['تمشي في حارة ضيقة متعرجة من غير ما تلمسي الخطوط البيضا','تلفي الدركسيون بدري وبالراحة بدل ما تلفيه مرة واحدة','تمشي ببطء: السرعة هنا مش مهمة، المهم الدقة'],
+  steps:['خليكي في نص الحارة','مع كل لفة في حرف S ابدئي لفي الدركسيون قبلها بشوية','في حرف L هدي خالص ولفي يمين وانتي مستقيمة في نص الحارة','اطلعي من الآخر من غير ما تلمسي أي خط'],
+  obj:'عدي حرف S وحرف L من غير ما تلمسي الخطوط البيضا.',
+  build(B){const pts=sPath();laneFromPath(B,pts,2.15);B.drivable.push({x0:-12,x1:40,z0:-30,z1:100});B.noWeave=true;
+    for(let z=-20;z<90;z+=16){palm(B,-14,z);palm(B,14,z+8);}
+    const e=pts[pts.length-1];B.goal={type:'reachPt',x:e[0]-1,z:e[1],r:2.6};
+    B.start={x:-2,z:-20,h:0};B.limit=15;B.habit=false;
+    B.hint=G=>'خليكي في نص الحارة وامشي ببطء. لفي الدركسيون بدري وبالراحة مع كل لفة.';}
+});
+LEVELS.push(...KW_LEVELS);
 function buildLot(B,side){
   const z0=-30,z1=95;
   road(B,-3.5,3.5,z0,z1,M.asphalt);
@@ -1012,17 +1362,19 @@ function clearLevel(){
 function loadLevel(i){
   clearLevel();
   const L=LEVELS[i],B=newB();B.rng=mulberry(31+i*7);
-  L.build(B);G.B=B;scene.add(B.group);
+  G.B=B;L.build(B);scene.add(B.group);
   const night=!!B.night;
   hemi.intensity=night?0.025:0.35;sun.intensity=night?0.05:2.4;sun.color.setHex(night?0x8fa6d8:0xfff0d8);R.toneMappingExposure=night?0.85:0.95;
   if(G.skyNight!==night){setSky(night);G.skyNight=night;}
   const s=B.start;
-  G.car={x:s.x-Math.sin(s.h)*RC,z:s.z-Math.cos(s.h)*RC,h:s.h,v:0,steer:0,kbd:0,gear:'P',belt:false,lights:false,signal:null,sigT:-99,sigOffT:-99,sigArm:false,brake:false,gas:false};
+  G.car={x:s.x-Math.sin(s.h)*RC,z:s.z-Math.cos(s.h)*RC,h:s.h,v:0,steer:0,kbd:0,gear:'P',belt:false,hb:true,adj:false,lights:false,signal:null,sigT:-99,sigOffT:-99,sigArm:false,brake:false,gas:false};
   G.lvl=i;G.time=0;G.score=100;G.log=[];G.fail=false;G.done=false;G.f={};G.mirrorT={1:-99,2:-99,3:-99};G.lastAnyMirror=0;G.habitBonus=0;G.contacts={};G.revEp=false;G.overT=0;G.offT=0;G.inGoal=false;G.pHint=false;
   B.zones.forEach(z=>{z.stopped=false;z.done=false;});
   B.ai.forEach(a=>{if(a.kind==='line'){a.t=0;a.on=true;}});
   G.cc=carCenter();G.pc=Object.assign({},G.cc);
-  $('#hTitle').textContent=`${i+1}. ${L.title}`;$('#hObj').textContent=L.obj;
+  G.headT={L:-99,R:-99};G.brkT=0;
+  if(B.narrowed)setTimeout(()=>toast('الفاحص ضيق المكان شوية المرة دي، خدي بالك','info'),600);
+  $('#hTitle').textContent=`${i+1}. ${L.title}`;$('#hObj').textContent=L.obj;$('#passTxt').textContent=`من ١٠٠ · النجاح ${(B.pass||80).toLocaleString('ar-EG')}`;G.slope=0;
   $('#lim').hidden=false;
   updHUD(true);
 }
@@ -1058,12 +1410,15 @@ function collisions(ob){
   B.statics.forEach((s,i)=>{if((s.hd>20||R2(ob,s))&&obbHit(ob,s))out.push({id:'s'+i,type:s.type});});
   B.circles.forEach((c,i)=>{if(circHit(ob,c))out.push({id:'c'+i,type:c.type});});
   B.ai.forEach((a,i)=>{if(a.on&&R2(ob,a)&&obbHit(ob,a))out.push({id:'a'+i,type:'ai',amb:a.amb});});
+  (B.peds||[]).forEach((p,i)=>{if(p.state==='walk'&&obbHit(ob,{x:p.x,z:p.z,hw:.3,hd:.3,h:0}))out.push({id:'p'+i,type:'ped'});});
   return out;
 }
-const HIT={curb:[-5,'لمستي الرصيف'],cone:[-10,'خبطتي في قمع'],car:[-25,'خبطتي في عربية راكنة',true],ai:[-30,'حادثة! خبطتي في عربية ماشية',true],pole:[-10,'خبطتي في عمود'],wall:[-10,'خبطتي في الحيطة'],island:[-10,'طلعتي على جزيرة الدوار']};
+const HIT={curb:[-5,'لمستي الرصيف'],cone:[-10,'خبطتي في قمع'],car:[-25,'خبطتي في عربية راكنة',true],ai:[-30,'حادثة! خبطتي في عربية ماشية',true],pole:[-10,'خبطتي في عمود'],wall:[-10,'خبطتي في الحيطة'],island:[-10,'طلعتي على جزيرة الدوار'],post:[-10,'خبطتي في عمود الحاجز'],ped:[-30,'خبطتي واحد ماشي على الممر!',true]};
 function onHits(hits){
   const now=G.time;let any=false;
-  hits.forEach(h=>{const last=G.contacts[h.id];G.contacts[h.id]=now;if(last!=null&&now-last<1.2)return;const H=HIT[h.type]||HIT.pole;score(H[0],H[1],H[2]);any=true;});
+  hits.forEach(h=>{const last=G.contacts[h.id];G.contacts[h.id]=now;if(last!=null&&now-last<1.2)return;
+    if(G.B.strictPark&&nearGoal()&&['curb','cone','post','pole','car','wall'].includes(h.type)){score(-25,`${(HIT[h.type]||HIT.pole)[1]} وانتي بتركني. في الاختبار ده رسوب على طول`,true);any=true;return;}
+    const H=HIT[h.type]||HIT.pole;score(H[0],H[1],H[2]);any=true;});
   if(any){S.crash();G.shake=.35;const f=$('#flash');f.classList.add('on');setTimeout(()=>f.classList.remove('on'),60);}
 }
 
@@ -1087,16 +1442,19 @@ function physics(dt){
   if(G.padOn&&!lf&&!rt){c.steer+=clamp(clamp(G.padS*G.sens,-1,1)-c.steer,-5*dt,5*dt);c.kbd=c.steer;}
   else if(G.phoneOn&&!lf&&!rt){c.steer+=clamp(clamp(G.phoneS*G.sens,-1,1)-c.steer,-5*dt,5*dt);c.kbd=c.steer;}
   else{ if(lf)c.kbd=Math.max(-1,c.kbd-1.5*G.sens*dt);else if(rt)c.kbd=Math.min(1,c.kbd+1.5*G.sens*dt);else if(c.v>.5)c.kbd-=Math.sign(c.kbd)*Math.min(Math.abs(c.kbd),.9*dt); c.steer=c.kbd; }
-  const v=c.v;let a=0;
+  const v=c.v;let a=0;if(!brk)G.brkT=0;
+  if(c.hb&&c.gear!=='P'&&!brk){c.v*=Math.pow(.25,dt);}
   if(c.gear==='P'){c.v=0;}
-  else if(brk){a=-Math.sign(v)*8;if(Math.abs(v)<=8*dt){c.v=0;a=0;}}
+  else if(brk){G.brkT=(G.brkT||0)+dt;const dec=Math.min(8,3.5+G.brkT*6);a=-Math.sign(v)*dec;if(Math.abs(v)<=dec*dt){c.v=0;a=0;}
+    if(Math.abs(v)*3.6>22&&G.brkT>.7&&G.time-(G.f.harsh||-99)>6){G.f.harsh=G.time;score(-3,'فرملتي فجأة وبعنف. هدي بدري وفرملي بالتدريج');}}
   else if(c.gear==='D'){ if(v<0)a=4; else if(gas)a=3.3*(1-v/31); else if(v<1.7)a=1.1; else a=-.22-.0006*v*v; }
   else if(c.gear==='R'){ if(v>0)a=-4; else if(gas)a=-2.2*(1+v/4.6); else if(v>-1.2)a=-.9; else a=.22; }
   else if(c.gear==='N'){a=-Math.sign(v)*.35;}
+  if(!brk&&c.gear!=='P'&&G.B.ramps){G.slope=slopeOf(carCenter(c));a+=-9.8*G.slope*.85;}else if(!G.B.ramps)G.slope=0;
   const nv=c.v+a*dt;
   if(c.gear==='D'&&!gas&&!brk&&v<1.7&&nv>1.7)c.v=1.7;
   else if(c.gear==='R'&&!gas&&!brk&&v>-1.2&&nv<-1.2)c.v=-1.2;
-  else if(c.gear==='N'&&Math.sign(nv)!==Math.sign(v))c.v=0;
+  else if(c.gear==='N'&&v!==0&&Math.sign(nv)!==Math.sign(v)&&Math.abs(G.slope||0)<.03)c.v=0;
   else c.v=nv;
   const prev={x:c.x,z:c.z,h:c.h};
   const d=c.steer*MAXS;
@@ -1109,7 +1467,7 @@ function physics(dt){
   if(c.signal){const s=c.signal==='L'?-c.steer:c.steer;if(s>.4)c.sigArm=true;if(c.sigArm&&s<.08){c.signal=null;c.sigOffT=G.time;c.sigArm=false;}}
 }
 function updateAI(dt){
-  const pc=G.cc;
+  const pc=G.cc;updatePeds(dt);
   G.B.ai.forEach(a=>{
     if(a.kind==='line'){
       if(a.gate){ if(a.gate.state==='green'&&a.wait<=0&&a.t===0){a.on=false;a.car.g.visible=false;return;} }
@@ -1135,15 +1493,19 @@ function blockedBy(a,p){const dx=p.x-a.x,dz=p.z-a.z,along=dx*Math.sin(a.h)+dz*Ma
 function updateLights(dt){
   G.B.lights.forEach(L=>{
     L.t+=dt;
+    if(L.flash){const on=Math.floor(G.time*1.7)%2===0;L.bulbs.forEach((b,i)=>hexL(b.m,i===1&&on?b.on:b.off));return;}
     if(!L.trig&&G.cc.z>L.line-L.trigDist&&G.cc.z<L.line){L.trig=true;L.state='yellow';L.t=0;setLight(L);}
     else if(L.state==='yellow'&&L.t>2.6){L.state='red';L.t=0;setLight(L);}
     else if(L.state==='red'&&L.t>L.red){L.state='green';L.t=0;setLight(L);}
     if(L.state==='red'&&Math.abs(G.car.v)<.1&&G.cc.z>L.line-14&&G.cc.z<L.line)L.waited=true;
   });
 }
+function sigLate(dir){const c=G.car;return c.signal===dir&&G.time-c.sigT<2;}
 function signalOK(dir){const c=G.car;return c.signal===dir||(c.lastSig===dir&&G.time-c.sigOffT<3);}
 function rules(dt){
   const c=G.car,B=G.B,now=G.time,kmh=Math.abs(c.v)*3.6,pc=G.pc,cc=G.cc;
+  if(Math.abs(c.v)>.4&&!c.adj&&!G.f.adj){G.f.adj=1;score(-5,'اتحركتي من غير ما تظبطي الكرسي والمرايات (A)');}
+  if(Math.abs(c.v)>.3&&c.hb&&!G.f.hb){G.f.hb=1;score(-5,'سوقتي والهاند بريك مشدود! نزليه قبل ما تتحركي (G)');}
   if(Math.abs(c.v)>.4&&!c.belt&&!G.f.belt){G.f.belt=1;score(-10,'اتحركتي من غير حزام. دايمًا الحزام الأول (B)');}
   if(B.night&&Math.abs(c.v)>.4&&!c.lights&&!G.f.lights){G.f.lights=1;score(-10,'الدنيا ليل واتحركتي من غير أنوار (L)');}
   const lim=B.limitAt?B.limitAt(cc.z):B.limit;G.curLim=lim;
@@ -1151,7 +1513,12 @@ function rules(dt){
   const lastM=Math.max(G.mirrorT[1],G.mirrorT[2],G.mirrorT[3]);
   G.nag=false;
   if(B.habit&&kmh>12&&!G.mirrorAuto){const gap=now-Math.max(lastM,G.f.moveT||0);if(gap>8)G.nag=true;if(gap>13&&now-(G.f.habT||-99)>12){G.f.habT=now;score(-2,'بقالك كتير مابصيتيش في المرايات');}}
-  if(kmh>5&&G.f.moveT==null)G.f.moveT=now;
+  if(kmh>5&&G.f.moveT==null){G.f.moveT=now;
+    if(B.start&&Math.abs(B.start.x)>4.5&&!B.uturn){const d=B.start.x<0?'L':'R';
+      if(!signalOK(d))score(-5,`طلعتي من جنب الرصيف من غير إشارة ${d==='L'?'شمال':'يمين'}`);
+      if(!headTurned(d))score(-3,'ماالتفتيش براسك للنقطة العمياء قبل ما تطلعي من جنب الرصيف');}}
+  // signal left on after the turn
+  if(c.signal&&kmh>8&&Math.abs(c.steer)<.12&&!nearGoal()){G.f.sigOn=(G.f.sigOn||0)+dt;if(G.f.sigOn>10){G.f.sigOn=0;c.signal=null;c.sigOffT=now;score(-3,'نسيتي الإشارة شغالة بعد اللفة');}}else if(!c.signal||Math.abs(c.steer)>.3)G.f.sigOn=0;
   // reversing
   if(c.v<-.2&&!G.revEp){G.revEp=true;if(G.mirrorAuto){}else if(now-G.mirrorT[2]<7)score(2,'بصيتي ورا قبل ما ترجعي');else score(-5,'رجعتي من غير ما تبصي في المراية اللي فوق');}
   if(c.v>.3)G.revEp=false;
@@ -1165,6 +1532,8 @@ function rules(dt){
       const key='ln'+l.at;if(now-(G.f[key]||-99)<2)return;G.f[key]=now;
       const mir=dir==='L'?1:3;let ok=true;
       if(!signalOK(dir)){ok=false;score(-5,`غيرتي مكانك من غير إشارة ${dir==='L'?'شمال (Q)':'يمين (E)'}`);}
+      else if(sigLate(dir)){ok=false;score(-2,'شغلتي الإشارة متأخر. شغليها قبلها بثانيتين على الأقل');}
+      if(!headTurned(dir)){ok=false;score(-3,`ماالتفتيش براسك ${dir==='L'?'شمال':'يمين'} للنقطة العمياء قبل ما تغيري الحارة`);}
       if(!G.mirrorAuto&&now-G.mirrorT[mir]>6){ok=false;score(-5,`مابصيتيش في المراية ${dir==='L'?'الشمال':'اليمين'} قبل ما تتحركي`);}
       const danger=B.ai.some(o=>o.on&&(dir==='L'?o.x>l.at:o.x<l.at)&&Math.abs(o.x-l.at)<4&&o.z-cc.z>-15&&o.z-cc.z<6);
       if(danger){ok=false;score(-10,'دخلتي قدام عربية جاية في الحارة التانية! المراية كانت هتوريكي');}
@@ -1175,28 +1544,75 @@ function rules(dt){
   const fz=z=>z+Math.cos(c.h)*HD;
   B.zones.forEach(z=>{
     if(z.kind==='stop'){
-      if(cc.x>z.x0&&cc.x<z.x1&&fz(cc.z)>z.line-9&&fz(cc.z)<=z.line+.3&&Math.abs(c.v)<.05)z.stopped=true;
-      if(!z.done&&fz(pc.z)<z.line&&fz(cc.z)>=z.line&&cc.x>z.x0&&cc.x<z.x1){z.done=true;if(z.stopped)score(5,'وقفة كاملة عند قف');else score(-15,'ماوقفتيش وقفة كاملة عند علامة قف');}
+      const f=fz(cc.z),inApp=cc.x>z.x0&&cc.x<z.x1&&f>z.line-9&&f<=z.line+2;
+      if(!z.done&&inApp&&Math.abs(c.v)<.05){
+        z.stopT=(z.stopT||0)+dt;headCollect(z);
+        if(f>z.line-.02){z.done=true;score(-25,'وقفتي والعربية على خط قف. لازم تقفي قبل الخط',true);}
+        else if(z.stopT>=3&&!z.ok3){z.ok3=true;toast('٣ ثواني، تمام. بصي يمين وشمال واتحركي','info');}
+        else if(z.stopT>14&&!z.hes&&!B.ai.some(a=>a.on&&a.kind==='line'&&Math.abs(a.z-z.line-6)<9&&Math.abs(a.x-cc.x)<28)){z.hes=true;score(-3,'ترددتي كتير بعد قف والطريق فاضي. بصي واتحركي');}
+      }
+      if(!z.done&&fz(pc.z)<z.line&&f>=z.line&&cc.x>z.x0&&cc.x<z.x1){z.done=true;
+        if(!z.stopT)score(-25,'ماوقفتيش عند قف. ده بيسقط في الاختبار',true);
+        else if(z.stopT<3)score(-15,`وقفتي ${z.stopT.toFixed(1)} ثانية بس عند قف. لازم ٣ ثواني كاملة`);
+        else score(5,'وقفة كاملة ٣ ثواني قبل الخط');
+        headJudge(z,'عند قف');}
+    } else if(z.kind==='hill'){
+      const f=fz(cc.z);
+      if(!z.cmdOn&&f>z.cmd&&cc.x>z.x0&&cc.x<z.x1){z.cmdOn=true;toast('الفاحص: اقفي هنا على المطلع','info');S.blip(660,.15,.06,'sine');}
+      if(z.cmdOn&&!z.over){
+        if(!z.stoppedT&&Math.abs(c.v)<.05&&f<=z.by){z.stoppedT=G.time;}
+        if(z.stoppedT&&!z.go&&G.time-z.stoppedT>2.5){z.go=true;toast('الفاحص: اتحركي','info');S.blip(880,.15,.06,'sine');}
+        if(!z.stoppedT&&f>z.by){z.over=true;score(-10,'مااستجبتيش لأمر الفاحص: كان لازم تقفي على المطلع');}
+        if(z.go&&f>z.by+4){z.over=true;if(!G.f.rbT)score(5,'وقفتي على المطلع واتحركتي من غير ما ترجعي');}
+      }
     } else if(z.kind==='yield'){
       if(!z.done&&fz(pc.z)<z.line&&fz(cc.z)>=z.line&&cc.x>z.x0&&cc.x<z.x1){z.done=true;
         const bad=B.ai.some(a=>a.on&&a.tag===z.tag&&Math.abs(a.x-cc.x)<26&&Math.sign(cc.x-a.x)===Math.sign(a.x1-a.x0));
         if(bad)score(-15,'ماادتيش أولوية للعربية الجاية. استني لحد ما تعدي');else score(4,'أفسحتي الطريق صح');}
     } else if(z.kind==='sigline'){
-      if(!z.done&&pc.z<z.line&&cc.z>=z.line&&cc.x>z.x0&&cc.x<z.x1){z.done=true;if(signalOK(z.dir))score(3,z.msgOk);else score(-5,z.msgBad);}
+      if(!z.done&&pc.z<z.line&&cc.z>=z.line&&cc.x>z.x0&&cc.x<z.x1){z.done=true;if(!signalOK(z.dir))score(-5,z.msgBad);else if(sigLate(z.dir))score(-2,'شغلتي إشارة الخروج متأخر');else score(3,z.msgOk);}
+    } else if(z.kind==='zebra'){
+      const fzz=fz(cc.z),onCross=p=>p.state==='walk'&&Math.abs(p.zc-z.zc)<1&&p.x>-7.8&&p.x<1.5;
+      if(!z.done&&fzz>z.line-12&&fzz<=z.line+.3&&Math.abs(c.v)<.05&&cc.x>z.x0&&cc.x<z.x1){
+        if(!(B.peds||[]).some(onCross)){z.waitT=(z.waitT||0)+dt;if(z.waitT>8&&!z.hes){z.hes=true;score(-2,'ترددتي كتير: الأصفر الوامض مش هيتغير. لما الممر يفضى عدي بالراحة');}}else z.waitT=0;}
+      if(!z.done&&fz(pc.z)<z.line&&fzz>=z.line&&cc.x>z.x0&&cc.x<z.x1){z.done=true;
+        if((B.peds||[]).some(onCross))score(-25,'عديتي والمشاة على الممر! الأولوية ليهم',true);
+        else if(kmh>25)score(-5,'قربتي من ممر المشاة بسرعة. هدي تحت ٢٥');
+        else score(5,'هديتي، بصيتي، وعديتي بأمان');}
     } else if(z.kind==='sigzone'){
-      if(!z.done&&cc.x>z.x0&&cc.x<z.x1&&cc.z>z.z0&&cc.z<z.z1&&c.v>.3){z.done=true;if(signalOK(z.dir))score(2,'عملتي إشارة قبل الركنة');else score(-3,`اعملي إشارة ${z.dir==='R'?'يمين (E)':'شمال (Q)'} قبل الركنة`);}
+      if(!z.done&&cc.x>z.x0&&cc.x<z.x1&&cc.z>z.z0&&cc.z<z.z1&&c.v>.3){z.done=true;if(signalOK(z.dir)&&!sigLate(z.dir))score(2,'عملتي إشارة قبل الركنة بوقت كفاية');else if(signalOK(z.dir))score(-2,'شغلتي إشارة الركنة متأخر');else score(-3,`اعملي إشارة ${z.dir==='R'?'يمين (E)':'شمال (Q)'} قبل الركنة`);}
     }
   });
-  if(B.roundYield){const y=B.roundYield;if(!G.f.ry&&fz(pc.z)<y.z&&fz(cc.z)>=y.z&&cc.x>y.x0&&cc.x<y.x1){G.f.ry=1;
+  if(B.roundYield){const y=B.roundYield;if(!G.f.ry&&fz(cc.z)>y.z-15&&fz(cc.z)<y.z)headCollect(y);
+    if(!G.f.ry&&fz(cc.z)>y.z-6&&fz(cc.z)<y.z+.3&&Math.abs(c.v)<.05&&!B.ai.some(a=>a.kind==='ring'&&a.phi>-.6&&a.phi<1.6)){y.wait=(y.wait||0)+dt;if(y.wait>10&&!y.hes){y.hes=true;score(-3,'ترددتي كتير عند الدوار والطريق فاضي');}}if(!G.f.ry&&fz(pc.z)<y.z&&fz(cc.z)>=y.z&&cc.x>y.x0&&cc.x<y.x1){G.f.ry=1;
+    if(kmh>20)score(-5,'دخلتي الدوار بسرعة. هدي تحت ٢٠');headJudge(y,'قبل الدوار');
     const bad=B.ai.some(a=>a.kind==='ring'&&a.phi>-.35&&a.phi<1.25);
     if(bad)score(-15,'دخلتي الدوار والعربية جاية من الشمال. الأولوية للي جوه');else score(5,'دخلتي الدوار في الوقت الصح');}}
   // traffic lights
   B.lights.forEach(L=>{
+    if(L.flash)return;
     if(!L.crossed&&fz(pc.z)<L.line&&fz(cc.z)>=L.line&&cc.x>L.x0-.5&&cc.x<L.x1+.5){L.crossed=true;
       if(L.state==='red')score(-25,'قطعتي الإشارة وهي حمرا',true);
       else if(L.state==='yellow'&&L.t>.8)score(-5,'عديتي والإشارة صفرا. كان لازم تقفي');
       else if(L.waited)score(5,'استنيتي الأخضر');}
   });
+  // keep to the right lane and drive straight
+  const twoWay=B.lines.some(l=>l.kind==='center'&&cc.z>l.z0&&cc.z<l.z1);
+  if(twoWay&&c.v>1&&Math.abs(normA(c.h))<.5&&cc.x+HW>.25&&cc.x<3){G.f.lane=(G.f.lane||0)+dt;if(G.f.lane>2&&now-(G.f.laneT||-99)>8){G.f.laneT=now;score(-3,'خليكي في حارتك اليمين. العربية راكبة على الخط اللي في النص');}}else G.f.lane=0;
+  if(kmh>15&&Math.abs(normA(c.h))<.4&&!B.noWeave){const sg=c.steer>.18?1:c.steer<-.18?-1:0;
+    if(sg&&sg!==G.f.wLast){G.f.wLast=sg;G.f.wFlips=(G.f.wFlips||[]).filter(t=>now-t<6);G.f.wFlips.push(now);
+      if(G.f.wFlips.length>=4&&now-(G.f.wT||-99)>10){G.f.wT=now;G.f.wFlips=[];score(-3,'العربية بتتمايل يمين وشمال. ثبتي الدركسيون وبصي لبعيد');}}}
+  // ground lines with sensors
+  (B.sensors||[]).forEach((sn,i)=>{if(obbHit(cc,sn)){const k='sn'+i;if(now-(G.f[k]||-99)>2.5&&now-(G.f.snAny||-99)>1.2){G.f.snAny=now;
+    if(B.strictPark&&nearGoal())score(-25,'لمستي خط المكان وانتي بتركني. في الاختبار ده رسوب على طول',true);else score(-5,'لمستي خط الحساس');}G.f[k]=now;}});
+  // stopping in a bay that is not allowed
+  (B.forbid||[]).forEach(f=>{if(f.done)return;const inside=cc.x>f.x0&&cc.x<f.x1&&cc.z>f.z0&&cc.z<f.z1;
+    if(inside&&Math.abs(c.v)<.05){f.t+=dt;if(f.t>2.5||c.gear==='P'){f.done=true;score(-25,`وقفتي في ${f.label}. ده ممنوع ويسقطك في الاختبار`,true);}}else f.t=0;});
+  // rolling back on a slope
+  if(Math.abs(G.slope||0)>.03&&c.v<-.3&&c.gear!=='R'&&now-(G.f.rbT||-99)>4){G.f.rbT=now;score(-10,'العربية رجعت لورا على المطلع. سيبي الفرامل وادوسي بنزين على طول');}
+  // tight-turn box: count changes of direction
+  if(B.uturn){const u=B.uturn;if(cc.x>u.x0-1&&cc.x<u.x1+1&&cc.z>u.z0-3&&cc.z<u.z1+1){const d=c.v>.3?1:c.v<-.3?-1:0;
+    if(d&&G.f.udir&&d!==G.f.udir){G.f.uch=(G.f.uch||0)+1;if(G.f.uch>4&&!G.f.uchP){G.f.uchP=1;score(-5,'لفيتي بحركات كتير قدام وورا. حاولي في ٣ حركات');}}if(d)G.f.udir=d;}}
   // off road
   const inD=B.drivable.some(r=>r.ring?((cc.x-r.ring.x)**2+(cc.z-r.ring.z)**2<r.ring.r1**2):(cc.x>=r.x0-.2&&cc.x<=r.x1+.2&&cc.z>=r.z0-.2&&cc.z<=r.z1+.2));
   if(!inD){G.offT+=dt;if(G.offT>.6&&now-(G.f.offT||-99)>5){G.f.offT=now;score(-10,'طلعتي برا الطريق');}}else G.offT=0;
@@ -1204,6 +1620,8 @@ function rules(dt){
 function checkGoal(){
   const g=G.B.goal,c=G.car,cc=G.cc;if(!g||G.done)return;
   if(g.type==='reach'){if(cc.z>g.z&&cc.x>g.x0&&cc.x<g.x1)finish();return;}
+  if(g.type==='reachPt'){if((cc.x-g.x)**2+(cc.z-g.z)**2<g.r*g.r)finish();return;}
+  if(g.type==='reachBack'){if(cc.z<g.z&&cc.x>g.x0&&cc.x<g.x1&&Math.abs(normA(c.h-Math.PI))<35*DEG)finish();return;}
   const cs=corners(cc),m=.12;
   const inside=cs.every(([x,z])=>x>g.x0-m&&x<g.x1+m&&z>g.z0-m&&z<g.z1+m);
   const angErr=Math.abs(normA(c.h-g.h));
@@ -1215,10 +1633,11 @@ function checkGoal(){
 }
 function finish(){
   G.done=true;const g=G.B.goal,c=G.car;
-  if(g.type==='park'){const err=Math.abs(normA(c.h-g.h))/DEG;if(err<3){G.score=Math.min(100,G.score+3);G.log.push({d:3,text:'ركنة معدولة بالظبط'});}}
+  if(g.type==='park'){const err=Math.abs(normA(c.h-g.h))/DEG;if(err<3){G.score=Math.min(100,G.score+3);G.log.push({d:3,text:'ركنة معدولة بالظبط'});}else if(err>4.5){G.score=Math.max(0,G.score-5);G.log.push({d:-5,text:`العربية مايلة ${err.toFixed(0)} درجة جوه المكان. عدليها قبل ما تحطي P`});}
+    if(g.curbX!=null){const gap=Math.abs(G.cc.x-g.curbX)-HW;if(gap>.6){G.score=Math.max(0,G.score-5);G.log.push({d:-5,text:`ركنتي بعيد عن الرصيف (${gap.toFixed(1)} متر). المفروض أقل من نص متر`});}else G.log.push({d:0,text:'المسافة من الرصيف مظبوطة'});}}
   if(G.B.habit&&G.habitBonus>0)G.log.push({d:0,text:`بصيتي في المرايات بانتظام (+${G.habitBonus})`});
   S.engine(0,false,false);S.siren(false);
-  const pass=G.score>=80&&!G.fail;
+  const pass=G.score>=(G.B.pass||80)&&!G.fail;
   const best=store.get('best',{});const prev=best[G.lvl];
   if(!prev||G.score>prev.s)best[G.lvl]={s:G.score,p:pass};store.set('best',best);
   setTimeout(()=>showResult(pass),500);
@@ -1230,7 +1649,8 @@ function finish(){
 const CAMS={driver:'جوه العربية',chase:'من ورا',top:'من فوق'};
 function visuals(dt){
   const c=G.car,p=player;
-  p.g.position.set(c.x,0,c.z);p.g.rotation.y=c.h;
+  const cy=G.B.ramps?heightAt(G.cc.x,G.cc.z):0,pt=G.B.ramps?Math.atan(slopeOf(G.cc)):0;
+  p.g.position.set(c.x,cy,c.z);p.g.rotation.set(-pt,c.h,0,'YXZ');
   p.fw.forEach(w=>w.rotation.y=-c.steer*MAXS);
   p.wheels.forEach(w=>w.userData.w.rotation.x+=c.v*dt/.34);
   p.swi.rotation.z=c.steer*2.6;
@@ -1253,8 +1673,8 @@ function visuals(dt){
     const cc=G.cc,f=[Math.sin(c.h),Math.cos(c.h)];
     if(G.cam==='chase'){camera.fov=60;camera.up.set(0,1,0);const tx=cc.x-f[0]*7.5,tz=cc.z-f[1]*7.5;
       if(!G.chaseP)G.chaseP={x:tx,z:tz};G.chaseP.x+=(tx-G.chaseP.x)*Math.min(1,dt*4);G.chaseP.z+=(tz-G.chaseP.z)*Math.min(1,dt*4);
-      camera.position.set(G.chaseP.x+sh,3.1,G.chaseP.z);camera.lookAt(cc.x+f[0]*3,1,cc.z+f[1]*3);}
-    else{camera.fov=50;camera.up.set(f[0],0,f[1]);camera.position.set(cc.x,24,cc.z);camera.lookAt(cc.x,0,cc.z);}
+      camera.position.set(G.chaseP.x+sh,3.1+cy,G.chaseP.z);camera.lookAt(cc.x+f[0]*3,1+cy,cc.z+f[1]*3);}
+    else{camera.fov=50;camera.up.set(f[0],0,f[1]);camera.position.set(cc.x,24+cy,cc.z);camera.lookAt(cc.x,0,cc.z);}
     camera.updateProjectionMatrix();
   }
   // mirrors
@@ -1272,7 +1692,7 @@ function updHUD(force){
   [...$('#gears').children].forEach(s=>s.classList.toggle('on',s.textContent===c.gear));
   const blink=Math.floor(G.time*2.6)%2===0;
   $('#aL').classList.toggle('on',c.signal==='L'&&blink);$('#aR').classList.toggle('on',c.signal==='R'&&blink);
-  $('#iBelt').className='ico '+(c.belt?'on':'warn');$('#iLights').className='ico '+(c.lights?'on':'');
+  $('#iBelt').className='ico '+(c.belt?'on':'warn');$('#iHB').className='ico '+(c.hb?'warn':'');$('#iLights').className='ico '+(c.lights?'on':'');
   $('#hScore').textContent=G.score;
   $('#gDot').classList.toggle('on',G.phoneOn||G.padOn);$('#gLink').textContent=G.padOn?'دركسيون Monect متوصل (I يعكس)':G.phoneOn?'التليفون متوصل':(G.peerReady?'امسحي الكود من التليفون':'سوقي بالأسهم ← →');
   $('#camName').textContent=CAMS[G.cam];
@@ -1281,6 +1701,8 @@ function updHUD(force){
   // hints
   let h='';
   if(c.gear==='P'&&!c.belt)h='البسي الحزام الأول: دوسي B';
+  else if(!c.adj&&!G.f.moveT)h='ظبطي الكرسي والمرايات التلاتة: دوسي A';
+  else if(c.hb&&!G.done)h='نزلي الهاند بريك قبل ما تتحركي: دوسي G';
   else if(G.B.night&&!c.lights)h='نوري الأنوار: دوسي L';
   else if(c.gear==='P'&&G.time<60&&!G.f.moveT&&!G.done)h=(G.lvl===0||G.lvl===11)?'بصي في المرايات، إشارة شمال (Q)، وبعدين دوسي فرامل (↓) وحطي D':'بصي في المرايات، دوسي فرامل (↓) وحطي D';
   else if(G.B.hint){h=G.B.hint(G)||'';}
@@ -1299,6 +1721,8 @@ function mirrorCheck(k,fromEye){
   if(G.B&&G.B.habit&&!G.mirrorAuto&&Math.abs(G.car.v)>3&&now-prev>5&&G.habitBonus<10){G.habitBonus++;G.score=Math.min(100,G.score+1);toast('بصة في المراية','good',1);}
 }
 function toggleBelt(){const c=G.car;c.belt=!c.belt;toast(c.belt?'لبستي الحزام':'قلعتي الحزام','info');if(c.belt&&!G.f.beltOK&&c.gear==='P'&&!G.f.moveT){G.f.beltOK=1;score(2,'الحزام قبل أي حاجة');}}
+function toggleHB(){const c=G.car;c.hb=!c.hb;toast(c.hb?'شديتي الهاند بريك':'نزلتي الهاند بريك','info');}
+function doAdjust(){const c=G.car;if(c.adj){toast('الكرسي والمرايات متظبطين','info');return;}c.adj=true;if(c.gear==='P'&&!G.f.moveT)score(2,'ظبطتي الكرسي والمرايات قبل الحركة');else toast('ظبطتي الكرسي والمرايات','info');G.glance={yaw:.4,pitch:.12,until:G.time+.7};}
 function toggleLights(){const c=G.car;c.lights=!c.lights;}
 function toggleSignal(d){const c=G.car;if(c.signal===d){c.signal=null;c.sigOffT=G.time;}else{c.signal=d;c.sigT=G.time;c.sigArm=false;}c.lastSig=d;}
 function phoneAction(d){
@@ -1318,6 +1742,8 @@ function phoneAction(d){
   else if(d.ev==='sig'&&(d.d==='L'||d.d==='R'))toggleSignal(d.d);
   else if(d.ev==='belt')toggleBelt();
   else if(d.ev==='lights')toggleLights();
+  else if(d.ev==='hb')toggleHB();
+  else if(d.ev==='adj')doAdjust();
 }
 function shift(gear){
   const c=G.car;if(c.gear===gear)return;
@@ -1337,6 +1763,8 @@ document.addEventListener('keydown',e=>{
   const c=G.car;
   if(k==='KeyB')toggleBelt();
   else if(k==='KeyL')toggleLights();
+  else if(k==='KeyG')toggleHB();
+  else if(k==='KeyA')doAdjust();
   else if(k==='KeyQ'||k==='KeyE')toggleSignal(k==='KeyQ'?'L':'R');
   else if(k==='KeyD')shift('D');else if(k==='KeyR')shift('R');else if(k==='KeyN')shift('N');else if(k==='KeyP')shift('P');
   else if(k==='Digit1'||k==='Numpad1')mirrorCheck(1);else if(k==='Digit2'||k==='Numpad2')mirrorCheck(2);else if(k==='Digit3'||k==='Numpad3')mirrorCheck(3);
@@ -1376,7 +1804,7 @@ function loop(t){
    ========================================================= */
 function renderMenu(){
   const best=store.get('best',{});
-  $('#levels').innerHTML=LEVELS.map((L,i)=>{const b=best[i];return `<button class="lvl" data-i="${i}"><span class="n">المستوى ${i+1}</span><b>${L.title}</b><small>${L.skill}</small>${b?`<span class="best ${b.p?'pass':''}">${b.p?'ناجح':'أعلى'} ${b.s}</span>`:''}</button>`;}).join('');
+  $('#levels').innerHTML=LEVELS.map((L,i)=>{const b=best[i];return `<button class="lvl" data-i="${i}"><span class="n">المستوى ${i+1}</span><b>${L.title}</b><small>${L.tag?L.tag+' · ':''}${L.skill}</small>${b?`<span class="best ${b.p?'pass':''}">${b.p?'ناجح':'أعلى'} ${b.s}</span>`:''}</button>`;}).join('');
   $('#levels').querySelectorAll('.lvl').forEach(b=>b.onclick=()=>openBrief(+b.dataset.i));
 }
 function showMenu(){
@@ -1424,28 +1852,37 @@ function wheelLink(){return location.origin+location.pathname.replace(/[^/]*$/,'
 function setLink(t,on){$('#menuLink').textContent=t;$('#menuDot').classList.toggle('on',!!on);}
 const CONNS=new Set();
 setInterval(()=>{if(!CONNS.size)return;const c=G.car;
-  const st=(G.running&&c)?{g:c.gear,b:c.belt,l:c.lights,sg:c.signal,k:Math.round(Math.abs(c.v)*3.6),on:!G.paused&&!G.done,p:!!G.paused,d:!!G.done,nx:G.lvl+1<LEVELS.length,lv:G.lvl+1}:{on:false};
+  const st=(G.running&&c)?{g:c.gear,b:c.belt,l:c.lights,hb:!!c.hb,adj:!!c.adj,sg:c.signal,k:Math.round(Math.abs(c.v)*3.6),on:!G.paused&&!G.done,p:!!G.paused,d:!!G.done,nx:G.lvl+1<LEVELS.length,lv:G.lvl+1}:{on:false};
   CONNS.forEach(cn=>{try{if(cn.open)cn.send({st});}catch(e){}});},200);
+const PEER_OPTS={debug:0,config:{iceServers:[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302','stun:stun.cloudflare.com:3478']},{urls:['turn:openrelay.metered.ca:80','turn:openrelay.metered.ca:443','turn:openrelay.metered.ca:443?transport=tcp'],username:'openrelayproject',credential:'openrelayproject'}]}};
+let PEER=null;
 function startPeer(){
   $('#menuCode').textContent=code;$('#gCode').textContent=code;$('#wheelUrl').textContent=wheelLink().replace(/^https?:\/\//,'');
   try{$('#qr').innerHTML='';if(window.QRCode)new QRCode($('#qr'),{text:wheelLink()+'?c='+code,width:132,height:132});else $('#qr').hidden=true;}catch(e){$('#qr').hidden=true;}
   if(!window.Peer){setLink('الربط مش متاح (مكتبة الاتصال ماتحملتش). سوقي بالأسهم.');return;}
-  const peer=new Peer('lyard-'+code,{debug:0});
+  try{PEER&&PEER.destroy();}catch(e){}
+  const peer=new Peer('lyard-'+code,PEER_OPTS);PEER=peer;
+  setLink('بيتصل بسيرفر الربط…');
   peer.on('open',()=>{G.peerReady=true;setLink('مستني التليفون…');});
   peer.on('connection',conn=>{
-    conn.on('open',()=>setLink('التليفون متوصل',true));
+    setLink('التليفون بيكلمني، بفتح الخط…');
+    const t=setTimeout(()=>{if(!conn.open){setLink('التليفون لقاني بس الشبكة مانعة الخط. خليهم على نفس الواي فاي واقفلي أي VPN');try{conn.close();}catch(e){}}},10000);
+    conn.on('open',()=>{clearTimeout(t);setLink('التليفون متوصل',true);});
     conn.on('data',d=>{if(!d||typeof d!=='object')return;
       if(typeof d.s==='number'&&isFinite(d.s)){G.phoneS=clamp(d.s,-1,1);G.peerT=performance.now();G.phGas=!!d.gas;G.phBrk=!!d.brk;}
       if(typeof d.ev==='string')phoneAction(d);});
-    CONNS.add(conn);conn.on('close',()=>CONNS.delete(conn));
-    conn.on('close',()=>setLink('التليفون فصل، امسحي الكود تاني'));
+    CONNS.add(conn);
+    conn.on('close',()=>{clearTimeout(t);CONNS.delete(conn);if(![...CONNS].some(c=>c.open))setLink('التليفون فصل، امسحي الكود تاني');});
   });
-  peer.on('disconnected',()=>{try{peer.reconnect();}catch(e){}});
+  peer.on('disconnected',()=>{try{if(!peer.destroyed)peer.reconnect();}catch(e){}});
   peer.on('error',e=>{
     if(e&&e.type==='unavailable-id'){peer.destroy();code=String(1000+Math.floor(Math.random()*9000));store.set('code',code);startPeer();return;}
-    if(e&&(e.type==='network'||e.type==='server-error'||e.type==='socket-error'))setLink('مشكلة في الاتصال بالنت، بحاول تاني…');
+    if(e&&(e.type==='network'||e.type==='server-error'||e.type==='socket-error'||e.type==='socket-closed'))setLink('مشكلة في الاتصال بالنت، بحاول تاني…');
   });
 }
+// keep the laptop registered: a sleeping tab or a dropped Wi-Fi can silently drop it from the server
+setInterval(()=>{if(!window.Peer||!PEER)return;if(PEER.destroyed)startPeer();else if(PEER.disconnected){try{PEER.reconnect();}catch(e){startPeer();}}},5000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&PEER&&(PEER.destroyed||PEER.disconnected)){try{PEER.disconnected&&!PEER.destroyed?PEER.reconnect():startPeer();}catch(e){startPeer();}}});
 /* ---------- eye tracking (webcam) ---------- */
 const ET={state:'off',video:null,lm:null,calib:store.get('eyeCalib',null),feat:null,lastFace:0,cand:0,candN:0,look:0,collect:null};
 const VISION='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
@@ -1483,6 +1920,8 @@ function etLoop(t){
   const bs={};r.faceBlendshapes[0].categories.forEach(c=>bs[c.categoryName]=c.score);
   let yaw=0,pitch=0;const m=r.facialTransformationMatrixes&&r.facialTransformationMatrixes[0];
   if(m&&m.data){const d=m.data;yaw=Math.atan2(d[8],d[10]);pitch=Math.asin(clamp(-d[9],-1,1));}
+  ET.yaw=yaw;ET.yaw0=ET.calib?ET.calib.c[0]/2.5:null;
+  if(ET.calib&&G.headT){const ls=Math.sign((ET.calib[1][0]-ET.calib.c[0])||1),d=(yaw-ET.yaw0)*ls;if(d>.35)G.headT.L=G.time;if(d<-.35)G.headT.R=G.time;}
   const gh=(bs.eyeLookOutLeft||0)+(bs.eyeLookInRight||0)-(bs.eyeLookInLeft||0)-(bs.eyeLookOutRight||0);
   const gv=(bs.eyeLookUpLeft||0)+(bs.eyeLookUpRight||0)-(bs.eyeLookDownLeft||0)-(bs.eyeLookDownRight||0);
   const f=[yaw*2.5,pitch*2.5,gh,gv];
@@ -1592,7 +2031,7 @@ setSens(G.sens);
 async function boot(){
   if(!THREEOK){$('#scrMenu').hidden=false;$('#levels').innerHTML='<p class="err">مكتبة الرسم ماتحملتش. جربي تحدثي الصفحة.</p>';return;}
   if(matchMedia('(pointer:coarse)').matches&&innerWidth<820)$('#onPhone').hidden=false;
-  try{await Promise.race([document.fonts.load("800 40px 'Mars'"),sleep(1500)]);}catch(e){}
+  try{await Promise.race([document.fonts.load("800 40px 'MT Halal'"),sleep(1500)]);}catch(e){}
   initThree();qLabel();showMenu();startPeer();
   const rl=store.get('resumeLvl',null);if(rl!=null&&LEVELS[rl]){store.set('resumeLvl',null);openBrief(rl);}
   if(store.get('eyeOn',false)&&navigator.permissions&&navigator.permissions.query){navigator.permissions.query({name:'camera'}).then(p=>{if(p.state==='granted')etStart(true);},()=>{});}
