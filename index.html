@@ -1377,20 +1377,21 @@ KW_LEVELS.splice(5,0,
     B.hint=G=>'خليكي في نص الحارة وامشي ببطء. لفي الدركسيون بدري وبالراحة مع كل لفة.';}
 });
 /* ---------- parallel parking against a kerb, with the wide orange water barriers at both ends (Kuwait yard style) ---------- */
+/* one orange water barrier standing across the parking lane, from the kerb outwards (x0..x1), centred at z */
 function orangeBarrier(B,x0,x1,z){
-  const w=x1-x0,P=MODELS.barrier;
-  if(P){const o=modelInst('barrier',w/P.size.x,.8/P.size.y,.5/P.size.z,0);o.position.set((x0+x1)/2,0,z);B.group.add(o);}
-  else{box(B,lazyMat('barrierO',0xe8661c,{roughness:.55}),w,.9,.5,(x0+x1)/2,.45,z);box(B,M.white,w*.9,.12,.52,(x0+x1)/2,.62,z);}
-  B.statics.push({x:(x0+x1)/2,z,hw:w/2,hd:.25,h:0,type:'barrier'});
+  const w=x1-x0,d=.6,P=MODELS.barrier;
+  if(P){const o=modelInst('barrier',w/P.size.x,.8/P.size.y,d/P.size.z,0);o.position.set((x0+x1)/2,0,z);B.group.add(o);}
+  else{box(B,lazyMat('barrierO',0xe8661c,{roughness:.55}),w,.8,d,(x0+x1)/2,.4,z);box(B,M.white,w*.9,.12,d*1.02,(x0+x1)/2,.58,z);}
+  B.statics.push({x:(x0+x1)/2,z,hw:w/2,hd:d/2,h:0,type:'barrier'});
 }
-/* side -1: bay on the right (x<0); side +1: bay on the left (x>0, one-way road). Both face +z. */
+/* side -1: bay on the right (x<0); side +1: bay on the left (x>0, one-way road). Both face +z.
+   The barriers stand across the lane at both ends and reach 2.2 m out from the kerb, like the cars in front and behind. */
 function barrierBay(B,side,z0,z1,W){
-  const cf=side<0?-6.6:6.6,inX=cf-side*W,bw=1.2; // 1.2 m is the widest barrier that still lets every test size (5.5-6 m) park in one move
+  const cf=side<0?-6.6:6.6,inX=cf-side*W,bw=2.2,ox=cf-side*bw;
   // white line marking the road side of the parking lane (you cross it on the way in; it is paint, not a sensor)
   flat(B,inX-.06,inX+.06,z0-14,z1+14,M.white,.024);
-  orangeBarrier(B,Math.min(cf,cf-side*bw),Math.max(cf,cf-side*bw),z0-.25);
-  orangeBarrier(B,Math.min(cf,cf-side*bw),Math.max(cf,cf-side*bw),z1+.25);
-  B.bay={side,cf,W,z0,z1};
+  orangeBarrier(B,Math.min(cf,ox),Math.max(cf,ox),z0-.3);orangeBarrier(B,Math.min(cf,ox),Math.max(cf,ox),z1+.3);
+  B.bay={side,cf,W,z0,z1,bw};
   return {type:'park',x0:Math.min(cf,inX),x1:Math.max(cf,inX),z0,z1,h:0,tol:8*DEG,curbX:cf,barrier:true};
 }
 const bayRnd=(a,b)=>Math.round((a+Math.random()*(b-a))*20)/20;
@@ -1400,28 +1401,52 @@ function bayGaps(G){const b=G.B.bay,cc=G.cc,cs=corners(cc);
   const kerb=Math.min(...cs.map(([x])=>Math.abs(x-b.cf)));
   return {kerb,back:Math.min(...cs.map(([,z])=>z))-b.z0,front:b.z1-Math.max(...cs.map(([,z])=>z))};}
 /* coaching for the barrier bay: stop point, then full lock, straighten, opposite lock */
+/* tuning for the barrier bay coach (found by simulating every bay size with the Sunny's turning circle) */
+const BAYC={stop:-0.3,lock:30,warn:.35,kerb:.33};
+/* predict a reverse arc with the wheel locked (d) from the current pose: what does the car hit first? */
+function bayPredict(d,untilStraight){
+  const b=G.B.bay,c=G.car,obs=G.B.statics.filter(o=>o.type==='barrier'||o.type==='curb');
+  let x=c.x,z=c.z,h=c.h;const dt=.04,v=-1,m=.06;
+  for(let i=0;i<200;i++){
+    h=h-v*Math.tan(d)/WB*dt;x+=v*Math.sin(h)*dt;z+=v*Math.cos(h)*dt;
+    const ob={x:x+Math.sin(h)*RC,z:z+Math.cos(h)*RC,h,hw:HW+m,hd:HD+m};
+    for(const o of obs)if(obbHit(ob,o)){if(o.type==='curb')return 'kerb';return o.z>(b.z0+b.z1)/2?'front':'back';}
+    if(untilStraight&&Math.abs(h)<.01)return null;
+  }
+  return null;
+}
+function bayPredictShort(){const b=G.B.bay,c=G.car,s=b.side,obs=G.B.statics.filter(o=>o.type==='barrier'&&o.z>(b.z0+b.z1)/2);let x=c.x,z=c.z,h=c.h;const d=s<0?-MAXS:MAXS;for(let i=0;i<12;i++){h=h+Math.tan(d)/WB*.04;x-=Math.sin(h)*.04;z-=Math.cos(h)*.04;const ob={x:x+Math.sin(h)*RC,z:z+Math.cos(h)*RC,h,hw:HW+.03,hd:HD+.03};if(obs.some(o=>obbHit(ob,o)))return true;}return false;}
 function barrierCoach(){
   return G=>{
-    const b=G.B.bay,s=b.side,c=G.car,cc=G.cc,ang=(s<0?c.h:-c.h)/DEG,rb=cc.z-HD,fb=b.z1+.25;
+    const b=G.B.bay,s=b.side,c=G.car,cc=G.cc,ang=(s<0?c.h:-c.h)/DEG,rb=cc.z-HD,fb=b.z1+BAYC.stop;
+    const K=PP(s),O=s<0?'شمال':'يمين';
     const toLine=Math.abs(cc.x-(b.cf-s*b.W))-HW;
-    const inLane=s<0?cc.x<b.cf-s*b.W+.3:cc.x>b.cf-s*b.W-.3;
-    if(G.inGoal&&Math.abs(ang)<3){const g=bayGaps(G);
+    const inLane=s<0?cc.x<b.cf-s*b.W+.6:cc.x>b.cf-s*b.W-.6;
+    const g=bayGaps(G);
+    if(G.inGoal&&Math.abs(ang)<3){
       if(g.back<g.front-.45)return `جوه المكان! وراكي ${cm(g.back)} سم وقدامك ${cm(g.front)}: اتقدمي سنة عشان تبقي في النص، وبعدين فرامل وP. (الرصيف ${cm(g.kerb)} سم)`;
       if(g.front<g.back-.45)return `جوه المكان! قدامك ${cm(g.front)} سم ووراكي ${cm(g.back)}: ارجعي سنة، وبعدين فرامل وP. (الرصيف ${cm(g.kerb)} سم)`;
       return `ممتاز! قدامك ${cm(g.front)} سم، وراكي ${cm(g.back)} سم، والرصيف ${cm(g.kerb)} سم. دوسي فرامل وحطي P.`;}
-    if(c.gear!=='R'){G.f.bayStraight=0;
-      if(G.inGoal&&Math.abs(ang)>=3)return `العربية لسه مايلة ${Math.round(Math.abs(ang))} درجة. اتقدمي سنة صغيرة والدركسيون ناحية ${(s<0)===(ang>0)?'الشمال':'اليمين'} لحد ما تتعدلي.`;
-      if(inLane&&Math.abs(ang)>4)return `لو محتاجة تصلحي: اتقدمي سنة والدركسيون ناحية ${s<0?'الشمال':'اليمين'}، وبعدين ارجعي تاني.`;
-      if(rb<fb-.2)return `اعملي إشارة ${PP(s)} وامشي جنب الخط الأبيض، وسيبي بينك وبينه حوالي نص متر. اقفي لما آخر عربيتك يبقى قصاد نص الحاجز اللي قدام المكان.`;
-      if(rb>fb+.3)return 'عديتي النقطة شوية. ارجعي على طول بالراحة لحد ما آخر عربيتك يبقى قصاد نص الحاجز اللي قدام.';
-      if(Math.abs(c.v)<.1)return `تمام كده${toLine>.9?' (بس انتي بعيدة عن الخط، الأحسن نص متر)':toLine<.2?' (بس انتي لازقة في الخط، الأحسن نص متر)':''}. بصي في المراية اللي فوق والمراية ${PP(s)}، دوسي فرامل وحطي R.`;
+    if(c.gear!=='R'){
+      if(G.f.bayPh&&inLane&&Math.abs(ang)>.8){
+        if(g.front<BAYC.warn)return `اقفي! قربتي من الحاجز اللي قدام. دوسي فرامل وحطي R، ولفي الدركسيون كله ${O} وارجعي بالراحة.`;
+        return `تصليحة: لفي الدركسيون كله ${K} واتقدمي بالراحة لحد ما تتعدلي، أو لحد ما تقربي من الحاجز اللي قدام.`;}
+      G.f.bayPh=0;
+      if(rb<fb-.2)return `اعملي إشارة ${K} وامشي جنب الخط الأبيض، وسيبي بينك وبينه حوالي ٣٠ سم. اقفي لما آخر عربيتك يبقى قبل الحاجز اللي قدام بحوالي ٣٠ سم (لسه ماوصلتيلوش).`;
+      if(rb>fb+.25)return 'عديتي النقطة شوية. ارجعي على طول بالراحة لحد ما آخر عربيتك يبقى قبل الحاجز اللي قدام بحوالي ٣٠ سم.';
+      if(Math.abs(c.v)<.1)return `تمام كده${toLine>.7?' (بس انتي بعيدة عن الخط، الأحسن ٣٠ سم)':''}. بصي في المراية اللي فوق والمراية ${K}، دوسي فرامل وحطي R.`;
       return 'اقفي هنا: دوسي فرامل.';
     }
-    if(ang<36&&!(G.f.bayStraight))return `لفي الدركسيون كله ${PP(s)} وارجعي بالراحة لحد ما العربية تميل حوالي ٤٠ درجة. خلي عينك على المراية ${PP(s)} والحاجز اللي قدام.`;
-    G.f.bayStraight=1;
-    const Rr=WB/Math.tan(MAXS),tx=b.cf-s*(HW+.4),rem=Rr*(1-Math.cos(c.h));
-    if(ang>.8&&(s<0?c.x-rem>tx:c.x+rem<tx))return `عدلي الدركسيون وارجعي على طول بالراحة. ${ang>50?'الزاوية كبرت شوية، ':''}هقولك امتى تلفي.`;
-    if(ang>.8)return `دلوقتي لفي الدركسيون كله ${s<0?'شمال':'يمين'} وكملي رجوع لحد ما تتعدلي مع الرصيف، من غير ما تلمسي الرصيف أو الحاجز اللي ورا.`;
+    if(!G.f.bayPh)G.f.bayPh='lock';
+    if(G.f.bayPh==='lock'){if(ang<BAYC.lock-2)return `لفي الدركسيون كله ${K} وارجعي بالراحة لحد ما العربية تميل حوالي ${BAYC.lock.toLocaleString('ar-EG')} درجة. خلي عينك على المراية ${K}.`;G.f.bayPh='straight';}
+    if(G.f.bayPh==='straight'){const pr=bayPredict(s<0?-MAXS:MAXS,true);
+      const Rr=WB/Math.tan(MAXS),xf=c.x+s*Rr*(1-Math.cos(c.h)),gapF=Math.abs(xf-b.cf)-HW;
+      if(ang>.8&&g.kerb>.3&&(pr==='front'||pr==='kerb'||gapF>BAYC.kerb))return `عدلي الدركسيون وارجعي على طول بالراحة. ${ang>BAYC.lock+15?'الزاوية كبرت شوية، ':''}هقولك امتى تلفي.`;
+      G.f.bayPh='counter';}
+    if(ang>.8){
+      if(bayPredictShort()){G.f.bayPh='straight';return 'عدلي الدركسيون وارجعي على طول شوية: مقدمة العربية كانت هتلمس الحاجز اللي قدام. هقولك امتى تلفي تاني.';}
+      if(g.back<BAYC.warn)return `اقفي! قربتي من الحاجز اللي ورا. دوسي فرامل وحطي D، ولفي الدركسيون كله ${K} واتقدمي بالراحة.`;
+      return `دلوقتي لفي الدركسيون كله ${O} وكملي رجوع لحد ما تتعدلي مع الرصيف. لو قربتي من الحاجز اللي ورا هقولك تقفي.`;}
     return 'اتعدلتي. اقفي بفرامل، وبصي في المراية: لو قريبة من الحاجز اللي ورا اتقدمي سنة.';
   };
 }
@@ -1441,16 +1466,16 @@ function barrierLevel(o){
 }
 const BARRIER_LEVELS=[
   barrierLevel({title:'ركنة بالحاجز البرتقالي والرصيف — يمين',side:-1,L:()=>6.0,W:()=>2.5,
-    learn:['زي ساحة المرور بالظبط: رصيف على اليمين، وحاجز ميه برتقالي (عرضه ١.٢ متر) قدام وحاجز ورا','المكان حوالي ٦ متر طول و٢.٥ متر عرض، وعربيتك (نيسان صني) ٤.٤٥ × ١.٧ متر','لمس الرصيف أو الحاجز وانتي بتركني = رسوب. الخط الأبيض عادي تعديه وانتي داخلة','المطلوب تبقي قريبة من الرصيف: من ٢٥ لـ ٤٠ سم'],
-    steps:['إشارة يمين، وامشي جنب الخط الأبيض بحوالي نص متر','اقفي لما آخر عربيتك يبقى قصاد نص الحاجز اللي قدام المكان','R، ولفي الدركسيون كله يمين وارجعي لحد ما تميلي حوالي ٤٠ درجة','عدلي الدركسيون وارجعي على طول لحد ما الإرشاد يقولك','لفي كله شمال لحد ما تتعدلي، واتسنتري بين الحاجزين وحطي P'],
+    learn:['زي ساحة المرور بالظبط: رصيف على اليمين، وحاجز ميه برتقالي قدام المكان وحاجز وراه، كل واحد طالع من الرصيف ٢.٢ متر زي عربية راكنة','المكان ٦ متر طول و٢.٥ متر عرض، وعربيتك (نيسان صني) ٤.٤٥ × ١.٧ متر','بالحواجز دي غالبًا هتحتاجي تصليحة: رجوع، وبعدين قدام سنة، وبعدين رجوع تاني. ده عادي طول ما مالمستيش حاجة','لمس الرصيف أو الحاجز وانتي بتركني = رسوب. الخط الأبيض عادي تعديه وانتي داخلة'],
+    steps:['إشارة يمين، وامشي جنب الخط الأبيض بحوالي ٣٠ سم','اقفي لما آخر عربيتك يبقى قبل الحاجز اللي قدام بحوالي ٣٠ سم','R، ولفي الدركسيون كله يمين وارجعي لحد ما تميلي حوالي ٣٠ درجة','عدلي الدركسيون وارجعي على طول لحد ما الإرشاد يقولك تلفي كله شمال','لو قربتي من الحاجز اللي ورا: D، كله يمين واتقدمي سنة، وبعدين R وكله شمال تاني','اتعدلي واتسنتري بين الحاجزين وحطي P'],
     obj:'اركني بين الحاجزين البرتقالي جنب الرصيف اليمين، من غير ما تلمسي الرصيف أو الحواجز.'}),
   barrierLevel({title:'ركنة بالحاجز البرتقالي والرصيف — شمال',side:1,L:()=>5.75,W:()=>2.35,
-    learn:['نفس الركنة بس الرصيف على الشمال في طريق اتجاه واحد','المكان أضيق شوية: ٥.٧٥ × ٢.٣٥ متر','المراية الشمال هي أهم مراية هنا، والدركسيون بيتعكس'],
-    steps:['امشي على الشمال وإشارة شمال، بينك وبين الخط الأبيض نص متر','اقفي لما آخر عربيتك يبقى قصاد نص الحاجز اللي قدام','R، ولفي كله شمال لحد ٤٠ درجة تقريبًا','عدلي وارجعي على طول، وبعدين لفي كله يمين لحد ما تتعدلي','اتسنتري وحطي P'],
+    learn:['نفس الركنة بس الرصيف على الشمال في طريق اتجاه واحد','المكان أضيق شوية: ٥.٧٥ × ٢.٣٥ متر، والحواجز طالعة ٢.٢ متر','المراية الشمال هي أهم مراية هنا، والدركسيون بيتعكس'],
+    steps:['امشي على الشمال وإشارة شمال، بينك وبين الخط الأبيض ٣٠ سم','اقفي لما آخر عربيتك يبقى قبل الحاجز اللي قدام بـ ٣٠ سم','R، ولفي كله شمال لحد ٣٠ درجة تقريبًا، وبعدين عدلي وارجعي على طول','لما الإرشاد يقولك: كله يمين وكملي رجوع','لو قربتي من الحاجز اللي ورا: D وكله شمال واتقدمي سنة، وبعدين R تاني. وفي الآخر P'],
     obj:'اركني بين الحاجزين جنب الرصيف الشمال من غير ما تلمسي حاجة.'}),
   barrierLevel({title:'ركنة الاختبار تحت المظلة (مقاس عشوائي)',side:-1,canopy:true,L:()=>bayRnd(5.5,6.0),W:()=>bayRnd(2.2,2.5),
-    learn:['زي صورة الاختبار: تحت المظلة، رصيف يمين وحاجز قدام وورا','المقاس بيتغير كل مرة من ٥.٥ لـ ٦ متر طول ومن ٢.٢ لـ ٢.٥ عرض، زي ما ممكن يحصل في الاختبار','في أضيق مقاس السماح قليل: لازم توقفي في المكان الصح بالظبط قبل ما ترجعي'],
-    steps:['إشارة يمين ونص متر من الخط الأبيض','آخر العربية قصاد نص الحاجز اللي قدام','كله يمين لحد ٤٠ درجة، عدلي، وبعدين كله شمال','لو لزم: اتقدمي سنة واتعدلي، المهم ماتلمسيش حاجة','P والعربية معدولة وقريبة من الرصيف'],
+    learn:['زي صورة الاختبار: تحت المظلة، رصيف يمين وحاجز قدام وحاجز ورا طالعين ٢.٢ متر','المقاس بيتغير كل مرة من ٥.٥ لـ ٦ متر طول ومن ٢.٢ لـ ٢.٥ عرض','في أضيق مقاس (٥.٥ متر) هتحتاجي تصليحتين. اتحركي ببطء جدًا، والإرشاد هيقولك تقفي امتى'],
+    steps:['إشارة يمين و٣٠ سم من الخط الأبيض','آخر العربية قبل الحاجز اللي قدام بـ ٣٠ سم','كله يمين لحد ٣٠ درجة، عدلي، وبعدين كله شمال لما الإرشاد يقولك','تصليحة لو لزم: قدام سنة بكله يمين، ورجوع بكله شمال','P والعربية معدولة'],
     obj:'اركني تحت المظلة بين الحاجزين جنب الرصيف، والمقاس بيتغير كل مرة.'})
 ];
 LEVELS.push(...KW_LEVELS);
@@ -1826,10 +1851,11 @@ function checkGoal(){
 function finish(){
   G.done=true;const g=G.B.goal,c=G.car;
   if(g.type==='park'){const err=Math.abs(normA(c.h-g.h))/DEG;if(err<3){G.score=Math.min(100,G.score+3);G.log.push({d:3,text:'ركنة معدولة بالظبط'});}else if(err>4.5){G.score=Math.max(0,G.score-5);G.log.push({d:-5,text:`العربية مايلة ${err.toFixed(0)} درجة جوه المكان. عدليها قبل ما تحطي P`});}
-    if(g.curbX!=null){const gap=Math.abs(G.cc.x-g.curbX)-HW;if(gap>.6){G.score=Math.max(0,G.score-5);G.log.push({d:-5,text:`ركنتي بعيد عن الرصيف (${gap.toFixed(1)} متر). المفروض أقل من نص متر`});}else if(!g.barrier)G.log.push({d:0,text:'المسافة من الرصيف مظبوطة'});}
+    if(g.curbX!=null&&!g.barrier){const gap=Math.abs(G.cc.x-g.curbX)-HW;if(gap>.6){G.score=Math.max(0,G.score-5);G.log.push({d:-5,text:`ركنتي بعيد عن الرصيف (${gap.toFixed(1)} متر). المفروض أقل من نص متر`});}else if(!g.barrier)G.log.push({d:0,text:'المسافة من الرصيف مظبوطة'});}
     if(g.barrier){const b=bayGaps(G),k=cm(b.kerb);
       if(b.kerb<=.42){G.score=Math.min(100,G.score+2);G.log.push({d:2,text:`قريبة من الرصيف ${k} سم، زي المطلوب (٢٥ لـ ٤٠ سم)`});}
-      else if(b.kerb<=.6)G.log.push({d:0,text:`بعيدة عن الرصيف ${k} سم. حاولي تقربي لـ ٢٥-٤٠ سم`});
+      else if(b.kerb<=.6)G.log.push({d:0,text:`بعيدة عن الرصيف ${k} سم. مقبول، بس الأحسن ٢٥-٤٠ سم`});
+      else{G.score=Math.max(0,G.score-5);G.log.push({d:-5,text:`ركنتي بعيد عن الرصيف (${k} سم). المفروض أقل من ٦٠ سم`});}
       if(Math.abs(b.front-b.back)<.45){G.score=Math.min(100,G.score+2);G.log.push({d:2,text:`متسنترة بين الحاجزين (قدام ${cm(b.front)} سم، ورا ${cm(b.back)} سم)`});}
       else G.log.push({d:0,text:`قدامك ${cm(b.front)} سم ووراكي ${cm(b.back)} سم. الأحسن تبقي في النص`});}}
   if(G.B.habit&&G.habitBonus>0)G.log.push({d:0,text:`بصيتي في المرايات بانتظام (+${G.habitBonus})`});
