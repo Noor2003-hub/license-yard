@@ -1379,13 +1379,13 @@ KW_LEVELS.splice(5,0,
 /* ---------- parallel parking against a kerb, with the wide orange water barriers at both ends (Kuwait yard style) ---------- */
 function orangeBarrier(B,x0,x1,z){
   const w=x1-x0,P=MODELS.barrier;
-  if(P){const o=modelInst('barrier',w/P.size.x,.9/P.size.y,.55/P.size.z,0);o.position.set((x0+x1)/2,0,z);B.group.add(o);}
+  if(P){const o=modelInst('barrier',w/P.size.x,.8/P.size.y,.5/P.size.z,0);o.position.set((x0+x1)/2,0,z);B.group.add(o);}
   else{box(B,lazyMat('barrierO',0xe8661c,{roughness:.55}),w,.9,.5,(x0+x1)/2,.45,z);box(B,M.white,w*.9,.12,.52,(x0+x1)/2,.62,z);}
   B.statics.push({x:(x0+x1)/2,z,hw:w/2,hd:.25,h:0,type:'barrier'});
 }
 /* side -1: bay on the right (x<0); side +1: bay on the left (x>0, one-way road). Both face +z. */
 function barrierBay(B,side,z0,z1,W){
-  const cf=side<0?-6.6:6.6,inX=cf-side*W,bw=1.0;
+  const cf=side<0?-6.6:6.6,inX=cf-side*W,bw=1.2; // 1.2 m is the widest barrier that still lets every test size (5.5-6 m) park in one move
   // white line marking the road side of the parking lane (you cross it on the way in; it is paint, not a sensor)
   flat(B,inX-.06,inX+.06,z0-14,z1+14,M.white,.024);
   orangeBarrier(B,Math.min(cf,cf-side*bw),Math.max(cf,cf-side*bw),z0-.25);
@@ -1441,7 +1441,7 @@ function barrierLevel(o){
 }
 const BARRIER_LEVELS=[
   barrierLevel({title:'ركنة بالحاجز البرتقالي والرصيف — يمين',side:-1,L:()=>6.0,W:()=>2.5,
-    learn:['زي ساحة المرور بالظبط: رصيف على اليمين، وحاجز ميه برتقالي قدام وحاجز ورا','المكان حوالي ٦ متر طول و٢.٥ متر عرض، وعربيتك (نيسان صني) ٤.٤٥ × ١.٧ متر','لمس الرصيف أو الحاجز وانتي بتركني = رسوب. الخط الأبيض عادي تعديه وانتي داخلة','المطلوب تبقي قريبة من الرصيف: من ٢٥ لـ ٤٠ سم'],
+    learn:['زي ساحة المرور بالظبط: رصيف على اليمين، وحاجز ميه برتقالي (عرضه ١.٢ متر) قدام وحاجز ورا','المكان حوالي ٦ متر طول و٢.٥ متر عرض، وعربيتك (نيسان صني) ٤.٤٥ × ١.٧ متر','لمس الرصيف أو الحاجز وانتي بتركني = رسوب. الخط الأبيض عادي تعديه وانتي داخلة','المطلوب تبقي قريبة من الرصيف: من ٢٥ لـ ٤٠ سم'],
     steps:['إشارة يمين، وامشي جنب الخط الأبيض بحوالي نص متر','اقفي لما آخر عربيتك يبقى قصاد نص الحاجز اللي قدام المكان','R، ولفي الدركسيون كله يمين وارجعي لحد ما تميلي حوالي ٤٠ درجة','عدلي الدركسيون وارجعي على طول لحد ما الإرشاد يقولك','لفي كله شمال لحد ما تتعدلي، واتسنتري بين الحاجزين وحطي P'],
     obj:'اركني بين الحاجزين البرتقالي جنب الرصيف اليمين، من غير ما تلمسي الرصيف أو الحواجز.'}),
   barrierLevel({title:'ركنة بالحاجز البرتقالي والرصيف — شمال',side:1,L:()=>5.75,W:()=>2.35,
