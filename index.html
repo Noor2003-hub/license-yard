@@ -1068,7 +1068,7 @@ function yardRoad(B,z0,z1,o){
   o=o||{};const W=6.6,gaps=o.gaps||[];
   road(B,-W,W,z0,z1,M.lot);
   segs(z0,z1,gaps).forEach(([a,b])=>{if(o.curb!==-1)sensorLine(B,-W,a,-W,b);if(o.curb!==1)sensorLine(B,W,a,W,b);});
-  if(o.curb){const x=o.curb*(W+.15);curbZ(B,x,z0,z1,gaps);flat(B,o.curb<0?-W-3.4:W+.3,o.curb<0?-W-.3:W+3.4,z0,z1,M.walk,.03);}
+  if(o.curb){const x=o.curb*(W+.15);curbZ(B,x,z0,z1,gaps);flat(B,o.curb<0?-W-5.4:W+.3,o.curb<0?-W-.3:W+5.4,z0,z1,M.walk,.03);}
   const sg=segs(z0,o.centerEnd!=null?o.centerEnd:z1,gaps);
   if(o.oneway){dashZ(B,0,z0,z1,gaps);sg.forEach(([a,b])=>B.lines.push({kind:'lane',at:0,z0:a,z1:b}));}
   else{solidZ(B,-.12,z0,z1,gaps,M.yellow,.06);solidZ(B,.12,z0,z1,gaps,M.yellow,.06);sg.forEach(([a,b])=>B.lines.push({kind:'center',at:0,z0:a,z1:b}));}
@@ -1458,7 +1458,7 @@ function barrierLevel(o){
       yardRoad(B,-20,140,{oneway:s>0,curb:s});if(s>0)sign(B,'oneway',-7.8,8,0);
       const z0=42.2,z1=z0+L;
       B.goal=barrierBay(B,s,z0,z1,W);B.strictPark=true;
-      if(o.canopy){canopy(B,s<0?-9.4:9.4,s<0?-2.6:2.6,z0-16,z1+16,4.2);}
+      if(o.canopy){canopy(B,s<0?-11:11,s<0?-3.4:3.4,z0-16,z1+16,4.2);}
       B.zones.push({kind:'sigzone',x0:s<0?-4:0,x1:s<0?0:4,z0:z1-6,z1:z1+3,dir:s<0?'R':'L'});
       B.start={x:s<0?-2:2,z:0,h:0};B.limit=20;B.hint=barrierCoach();
       B.sizeNote=`المكان: ${L.toFixed(2)} متر طول × ${W.toFixed(2)} متر عرض`;
